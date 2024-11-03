@@ -53,10 +53,11 @@
     </form>
     <br>
 
-
-    <a class="text-sm text-blue-600 hover:text-blue-800" href="{{ route('password.request') }}">
-                    {{ __('admin login?') }}
-                </a>
+    <div class="text-center">
+        <a class="text-sm text-blue-600 hover:text-blue-800" href="{{ route('admin.login') }}">
+            {{ __('admin?') }}
+        </a>
+    </div>
 
 
 </x-guest-layout>
