@@ -7,10 +7,11 @@
     <title>admin-login</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-gray-100">
+<body class=" bg-gradient-to-r from-cyan-300 to-blue-600 ">
     <div class="min-h-screen flex flex-col justify-center items-center pt-6 sm:pt-0">
         <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
-            <h2 class="text-center text-2xl font-bold mb-8">Admin Login</h2>
+            <h2 class="text-center text-2xl font-bold mb-1">Admin Login</h2>
+            <br>
             
             @if ($errors->any())
             <div class="mb-4">
@@ -63,8 +64,8 @@
 
                 <div class="flex items-center justify-end">
                     <button type="submit" 
-                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full">
-                        Log in
+                            class="bg-blue-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full">
+                        Sign in
                     </button>
                 </div>
                 <br>

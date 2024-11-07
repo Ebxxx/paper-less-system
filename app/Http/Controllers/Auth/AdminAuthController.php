@@ -44,7 +44,7 @@ class AdminAuthController extends Controller
 
             // Regenerate session and redirect to dashboard
             $request->session()->regenerate();
-            return redirect()->intended(route('admin.dashboard'));
+            return redirect()->intended(route('admin.AdminDashboard'));
         }
 
         // Invalid credentials

@@ -47,7 +47,7 @@
             @endif -->
         </div>
 
-        <x-primary-button class="w-full justify-center bg-blue-600 hover:bg-blue-700">
+        <x-primary-button class="w-full justify-center bg-blue-700 hover:bg-blue-700">
             {{ __('Sign in') }}
         </x-primary-button>
     </form>

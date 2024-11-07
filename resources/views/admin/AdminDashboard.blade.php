@@ -21,7 +21,7 @@
                     <div class="space-y-3">
                         @foreach($recentUsers as $user)
                             <div class="flex justify-between items-center">
-                                <span>{{ $user->name }}</span>
+                                <span>{{ $user->username }}</span>
                                 <span class="text-gray-500 text-sm">
                                     {{ $user->created_at->diffForHumans() }}
                                 </span>

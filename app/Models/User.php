@@ -18,11 +18,16 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'username',
+        'first_name',
+        'middle_name',
+        'last_name',
         'email',
         'password',
-        'role'
+        'role',
+        'signature_path',
     ];
+
 
     /**
      * The attributes that should be hidden for serialization.
@@ -48,5 +53,10 @@ class User extends Authenticatable
     {
         return $this->role === 'admin';
     }
+
+    public function getFullnameAttribute()
+{
+    return trim("{$this->first_name} {$this->middle_name} {$this->last_name}");
+}
     
 }

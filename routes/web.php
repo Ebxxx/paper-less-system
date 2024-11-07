@@ -31,9 +31,8 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
-    Route::post('/logout', [AdminAuthController::class, 'logout'])
-        ->name('admin.logout');
-    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::post('/logout', [AdminAuthController::class, 'logout']) ->name('admin.logout');
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.AdminDashboard');
     
     // User management routes
     Route::get('/users', [AdminController::class, 'users'])->name('admin.users.index');
