@@ -41,6 +41,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/users/{user}/edit', [AdminController::class, 'editUser'])->name('admin.users.edit');
     Route::put('/users/{user}', [AdminController::class, 'updateUser'])->name('admin.users.update');
     Route::delete('/users/{user}', [AdminController::class, 'deleteUser'])->name('admin.users.delete');
+
+    Route::get('/admin/mail/messages', function () {
+        return view('admin.mail.message'); })->name('admin.mail.message');
 });
+
+
 
 require __DIR__.'/auth.php';

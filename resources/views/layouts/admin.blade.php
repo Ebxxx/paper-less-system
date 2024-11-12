@@ -6,7 +6,6 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Admin Page</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
-
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/bootstrap.js'])
     @vite(['resources/css/admin.css', 'resources/js/admin.js'])
@@ -16,7 +15,7 @@
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <a href="{{ route('admin.AdminDashboard') }}" class="logo">ADMIN</a>
+                <a href="{{ route('admin.AdminDashboard') }}" class="logo">LOGO HERE</a>
             </div>
             <nav class="nav-menu">
                 <a href="{{ route('admin.AdminDashboard') }}" 
@@ -26,6 +25,10 @@
                 <a href="{{ route('admin.users.index') }}"
                    class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                     <i class="fas fa-users mr-2"></i> Users
+                </a>
+                <a href="{{ route('admin.mail.message') }}"
+                   class="nav-item {{ request()->routeIs('') ? 'active' : '' }}">
+                    <i class="fas fa-envelope mr-2"></i> Mail
                 </a>
                 <form method="POST" action="{{ route('logout') }}" class="mt-auto">
                     @csrf
@@ -42,6 +45,10 @@
                 <button class="toggle-btn" id="toggle-sidebar">
                     <i class="fas fa-bars"></i>
                 </button>
+                    <div class="admin-username mr-4 text-lg">
+                    {{ auth()->user()->role }}
+                    <div class="username">{{ auth()->user()->username }}</div>
+                </div>             
             </div>
 
             <!-- Page Content -->

@@ -1,4 +1,3 @@
-
 * {
     margin: 0;
     padding: 0;
@@ -43,7 +42,7 @@ body {
 .logo {
     font-size: 1.5rem;
     font-weight: bold;
-    color: #111827;
+    color: #0b245a;
     text-decoration: none;
 }
 
@@ -85,13 +84,25 @@ body {
 
 .top-bar {
     background: white;
-    padding: 1rem;
+    padding: 0.9em;
     display: flex;
     align-items: center;
     border-bottom: 1px solid #e5e7eb;
     position: sticky;
     top: 0;
     z-index: 100;
+    justify-content: space-between;
+}
+
+.admin-username {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.username {
+    font-size: 0.7em;
+    color: #555;
 }
 
 .toggle-btn {
@@ -148,6 +159,7 @@ body {
     color: #b82626;
 }
 
+/* Responsive adjustments for smaller screens */
 @media (max-width: 768px) {
     .sidebar {
         transform: translateX(-100%);
@@ -160,5 +172,46 @@ body {
     .main-content {
         margin-left: 0;
         width: 100%;
+    }
+
+    .top-bar {
+        padding: 0.5em;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .toggle-btn {
+        align-self: flex-end;
+    }
+
+    .admin-username {
+        align-items: flex-start; /* Aligns text to left on smaller screens */
+    }
+}
+
+@media (max-width: 480px) {
+    .username {
+        font-size: 0.6em; /* Adjust font size for very small screens */
+    }
+
+    .content {
+        padding: 1rem;
+    }
+/* Mail design  */
+    .message-card {
+        transition: all 0.3s ease;
+    }
+    
+    .message-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    .status-badge {
+        transition: all 0.3s ease;
+    }
+    
+    .status-badge:hover {
+        transform: scale(1.05);
     }
 }
