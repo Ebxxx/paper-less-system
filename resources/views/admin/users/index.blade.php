@@ -52,15 +52,17 @@
                                         {{ ucfirst($user->role) }}
                                     </span>
                                 </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                        @if($user->signature_path)
-                            <a href="{{ asset('storage/' . $user->signature_path) }}" download class="text-indigo-600 hover:text-indigo-900">
-                                Download Signature
-                            </a>
-                        @else
-                            <span class="text-gray-500">No Signature</span>
-                        @endif
-                    </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                        @if($user->signature_path)
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                Signature Uploaded
+                                            </span>
+                                        @else
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                                No Signature
+                                            </span>
+                                        @endif
+                                    </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     {{ $user->created_at->format('M d, Y') }}
                                 </td>

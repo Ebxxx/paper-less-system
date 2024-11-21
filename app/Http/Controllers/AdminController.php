@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
+use Carbon\Carbon;
 
 class AdminController extends Controller
 {
@@ -13,7 +14,37 @@ class AdminController extends Controller
     {
         $totalUsers = User::count();
         $recentUsers = User::latest()->take(5)->get();
-        return view('admin.AdminDashboard', compact('totalUsers', 'recentUsers'));
+        
+        // User type statistics
+        $adminCount = User::where('role', 'admin')->count();
+        $regularUserCount = User::where('role', 'user')->count();
+        
+        // User growth data
+        $userGrowth = User::select('created_at')
+            ->get()
+            ->groupBy(function($date) {
+                return Carbon::parse($date->created_at)->format('M');
+            })
+            ->map(function ($item) {
+                return $item->count();
+            })
+            ->toArray();
+
+        // Prepare user growth data for chart
+        $userGrowthData = collect(array_keys($userGrowth))->map(function($month) use ($userGrowth) {
+            return [
+                'month' => $month,
+                'users' => $userGrowth[$month] ?? 0
+            ];
+        })->sortBy('month')->values()->toArray();
+
+        return view('admin.AdminDashboard', compact(
+            'totalUsers', 
+            'recentUsers', 
+            'adminCount', 
+            'regularUserCount', 
+            'userGrowthData'
+        ));
     }
 
     public function users()
