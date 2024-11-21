@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Auth\AdminAuthController;
+use App\Http\Controllers\SuperadminController;
+
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -44,6 +46,23 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
     Route::get('/admin/mail/messages', function () {
         return view('admin.mail.message'); })->name('admin.mail.message');
+});
+
+    // Superadmin Routes
+    Route::prefix('superadmin')->name('superadmin.')->group(function () {
+        // Authentication Routes
+        Route::get('/login', [SuperadminController::class, 'showLoginForm'])->name('login');
+        Route::post('/login', [SuperadminController::class, 'login'])->name('login.submit');
+        Route::post('/logout', [SuperadminController::class, 'logout'])->name('logout');
+
+        // Protected Superadmin Routes
+        Route::middleware(['auth:superadmin'])->group(function () {
+            Route::get('/dashboard', [SuperadminController::class, 'dashboard'])->name('dashboard');
+            Route::get('/create-admin', [SuperadminController::class, 'createAdmin'])->name('create-admin');
+            Route::post('/store-admin', [SuperadminController::class, 'storeAdmin'])->name('store-admin');
+
+            Route::get('/superadmin/user-statistics', [SuperadminController::class, 'getUserStatistics'])->middleware('auth:superadmin');
+        });
 });
 
 
