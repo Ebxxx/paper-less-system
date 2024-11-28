@@ -72,6 +72,51 @@
                     @enderror
                 </div>
 
+                <!-- Job Title -->
+                <div>
+                    <label for="job_title" class="block text-sm font-medium text-gray-700">
+                        Job Title
+                    </label>
+                    <input type="text" 
+                        name="job_title" 
+                        id="job_title" 
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        value="{{ old('job_title') }}">
+                    @error('job_title')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Program -->
+                <div>
+                    <label for="program" class="block text-sm font-medium text-gray-700">
+                        Program
+                    </label>
+                    <input type="text" 
+                        name="program" 
+                        id="program" 
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        value="{{ old('program') }}">
+                    @error('program')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Department -->
+                <div>
+                    <label for="department" class="block text-sm font-medium text-gray-700">
+                        Department
+                    </label>
+                    <input type="text" 
+                        name="department" 
+                        id="department" 
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        value="{{ old('department') }}">
+                    @error('department')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 <!-- Email Address -->
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-700">

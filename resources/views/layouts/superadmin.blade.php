@@ -30,6 +30,11 @@
                    class="nav-item {{ request()->routeIs('') ? 'active' : '' }}">
                     <i class="fas fa-user mr-2"></i> Manage user
                 </a>
+                <a href="{{ route('admin.users.index') }}"
+                   class="nav-item {{ request()->routeIs('') ? 'active' : '' }}">
+                    <i class="fas fa-message mr-2"></i> Message
+                </a>
+
                 <form method="POST" action="{{ route('superadmin.logout') }}" class="mt-auto">
                     @csrf
                     <button type="submit" class="logout-btn">

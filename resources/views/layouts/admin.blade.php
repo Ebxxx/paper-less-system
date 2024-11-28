@@ -46,9 +46,9 @@
                     <i class="fas fa-bars"></i>
                 </button>
                     <div class="admin-username mr-4 text-lg">
-                    {{ auth()->user()->role }}
-                    <div class="username">{{ auth()->user()->username }}</div>
-                </div>             
+                    {{ auth()->user()->username }}
+                    <div class="username">{{ auth()->user()->role }}</div>
+                </div>     
             </div>
 
             <!-- Page Content -->
