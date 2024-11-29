@@ -19,8 +19,24 @@ class AdminController extends Controller
         $adminCount = User::where('role', 'admin')->count();
         $regularUserCount = User::where('role', 'user')->count();
         
-        // User growth data
+        // Get distinct years
+        $years = User::selectRaw('DISTINCT YEAR(created_at) as year')
+            ->orderBy('year', 'desc')
+            ->pluck('year');
+        
+        // Default to the most recent year if no year is specified
+        $selectedYear = request('year', $years->first());
+        
+        // Define month order
+        $monthOrder = [
+            'Jan' => 1, 'Feb' => 2, 'Mar' => 3, 'Apr' => 4, 
+            'May' => 5, 'Jun' => 6, 'Jul' => 7, 'Aug' => 8, 
+            'Sep' => 9, 'Oct' => 10, 'Nov' => 11, 'Dec' => 12
+        ];
+        
+        // User growth data with year filtering
         $userGrowth = User::select('created_at')
+            ->whereYear('created_at', $selectedYear)
             ->get()
             ->groupBy(function($date) {
                 return Carbon::parse($date->created_at)->format('M');
@@ -29,24 +45,31 @@ class AdminController extends Controller
                 return $item->count();
             })
             ->toArray();
-
-        // Prepare user growth data for chart
-        $userGrowthData = collect(array_keys($userGrowth))->map(function($month) use ($userGrowth) {
-            return [
-                'month' => $month,
-                'users' => $userGrowth[$month] ?? 0
-            ];
-        })->sortBy('month')->values()->toArray();
-
+    
+        // Prepare user growth data for chart, sorted chronologically
+        $userGrowthData = collect($userGrowth)
+            ->map(function($users, $month) {
+                return [
+                    'month' => $month,
+                    'users' => $users
+                ];
+            })
+            ->sortBy(function($item) use ($monthOrder) {
+                return $monthOrder[$item['month']];
+            })
+            ->values()
+            ->toArray();
+    
         return view('admin.AdminDashboard', compact(
             'totalUsers', 
             'recentUsers', 
             'adminCount', 
             'regularUserCount', 
-            'userGrowthData'
+            'userGrowthData',
+            'years',
+            'selectedYear'
         ));
     }
-
     public function users()
     {
         $users = User::paginate(10);
@@ -68,7 +91,10 @@ class AdminController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', Password::defaults()],
             'role' => ['required', 'in:admin,user'],
-            'signature' => ['nullable', 'file', 'mimes:jpeg,png,jpg', 'max:2048']
+            'signature' => ['nullable', 'file', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'job_title' => ['nullable', 'string', 'max:255'],
+            'program' => ['nullable', 'string', 'max:255'],
+            'department' => ['nullable', 'string', 'max:255']
         ]);
 
         $userData = [
@@ -78,7 +104,10 @@ class AdminController extends Controller
             'last_name' => $request->last_name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->role
+            'role' => $request->role,
+            'job_title' => $request->job_title,
+            'program' => $request->program,
+            'department' => $request->department
         ];
 
         if ($request->hasFile('signature')) {
@@ -106,7 +135,10 @@ class AdminController extends Controller
         'last_name' => ['required', 'string', 'max:255'],
         'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
         'role' => ['required', 'in:admin,user'],
-        'signature' => ['nullable', 'file', 'mimes:jpeg,png,jpg', 'max:2048']
+        'signature' => ['nullable', 'file', 'mimes:jpeg,png,jpg', 'max:2048'],
+        'job_title' => ['nullable', 'string', 'max:255'],
+        'program' => ['nullable', 'string', 'max:255'],
+        'department' => ['nullable', 'string', 'max:255']
     ]);
 
     $userData = [
@@ -116,7 +148,10 @@ class AdminController extends Controller
         'middle_name' => $request->middle_name,
         'last_name' => $request->last_name,
         'email' => $request->email,
-        'role' => $request->role
+        'role' => $request->role,
+        'job_title' => $request->job_title,
+        'program' => $request->program,
+        'department' => $request->department
     ];
 
     if ($request->filled('password')) {

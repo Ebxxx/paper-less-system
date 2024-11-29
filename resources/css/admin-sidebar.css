@@ -18,7 +18,7 @@ body {
 /* Sidebar Styles */
 .sidebar {
     width: 250px;
-    background: white;
+    background: #1C325B; /* Updated sidebar background color */
     border-right: 1px solid #e5e7eb;
     transition: all 0.3s ease;
     position: fixed;
@@ -39,10 +39,18 @@ body {
     border-bottom: 1px solid #e5e7eb;
 }
 
+.user-sidebar-header {
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #e5e7eb;
+}
+
 .logo {
     font-size: 1.5rem;
     font-weight: bold;
-    color: #0b245a;
+    color: white; /* Changed logo color to white for better contrast */
     text-decoration: none;
 }
 
@@ -54,21 +62,20 @@ body {
     display: block;
     padding: 0.75rem 1rem;
     margin: 0.5rem 0;
-    color: #374151;
+    color: #f3f4f6; /* Changed text color to lighter shade for better readability */
     text-decoration: none;
     border-radius: 0.375rem;
     transition: all 0.2s ease;
 }
 
 .nav-item:hover {
-    background: #f3f4f6;
+    background: rgba(255, 255, 255, 0.1); /* Slight hover effect for dark background */
 }
 
 .nav-item.active {
-    background: #4f46e5;
+    background: rgba(255, 255, 255, 0.2); /* Adjusted active state for dark background */
     color: white;
 }
-
 /* Main Content Styles */
 .main-content {
     flex: 1;

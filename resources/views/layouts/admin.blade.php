@@ -8,7 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/bootstrap.js'])
-    @vite(['resources/css/admin.css', 'resources/js/admin.js'])
+    @vite(['resources/css/admin-sidebar.css', 'resources/js/admin.js'])
 </head>
 <body>
     <div class="layout">
@@ -46,9 +46,9 @@
                     <i class="fas fa-bars"></i>
                 </button>
                     <div class="admin-username mr-4 text-lg">
-                    {{ auth()->user()->role }}
-                    <div class="username">{{ auth()->user()->username }}</div>
-                </div>             
+                    {{ auth()->user()->username }}
+                    <div class="username">{{ auth()->user()->role }}</div>
+                </div>     
             </div>
 
             <!-- Page Content -->

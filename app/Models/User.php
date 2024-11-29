@@ -26,6 +26,9 @@ class User extends Authenticatable
         'password',
         'role',
         'signature_path',
+        'job_title',
+        'program',
+        'department'
     ];
 
 

@@ -1,0 +1,216 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: #f3f4f6;
+}
+
+.layout {
+    display: flex;
+    min-height: 100vh;
+    transition: all 0.3s ease;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: 250px;
+    background: #dfe1e3; /* Updated sidebar background color */
+    border-right: 1px solid #e5e7eb;
+    transition: all 0.3s ease;
+    position: fixed;
+    height: 100vh;
+    z-index: 1000;
+}
+
+.sidebar.collapsed {
+    width: 0;
+    overflow: hidden;
+}
+
+.sidebar-header {
+    padding: 1.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /* border-bottom: 1px solid #070707; */
+}
+
+.logo {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: rgb(0, 0, 0); /* Changed logo color to white for better contrast */
+    text-decoration: none;
+}
+
+.nav-menu {
+    padding: 1rem;
+}
+
+.nav-item {
+    display: block;
+    padding: 0.75rem 1rem;
+    margin: 0.5rem 0;
+    color: #1b1b1c; /* Changed text color to lighter shade for better readability */
+    text-decoration: none;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+}
+
+.nav-item:hover {
+    background: rgba(255, 255, 255, 0.1); /* Slight hover effect for dark background */
+}
+
+.nav-item.active {
+    background: rgba(255, 255, 255, 0.2); /* Adjusted active state for dark background */
+    color: white;
+}
+/* Main Content Styles */
+.main-content {
+    flex: 1;
+    margin-left: 250px;
+    transition: all 0.3s ease;
+    width: calc(100% - 250px);
+}
+
+.main-content.expanded {
+    margin-left: 0;
+    width: 100%;
+}
+
+.top-bar {
+    background: white;
+    padding: 0.9em;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #e5e7eb;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    justify-content: space-between;
+}
+
+.admin-username {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.username {
+    font-size: 0.7em;
+    color: #555;
+}
+
+.toggle-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #374151;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toggle-btn:hover {
+    color: #111827;
+}
+
+.content {
+    padding: 2rem;
+}
+
+.alert {
+    padding: 1rem;
+    border-radius: 0.375rem;
+    margin-bottom: 1rem;
+}
+
+.alert-success {
+    background: #dcfce7;
+    border: 1px solid #86efac;
+    color: #166534;
+}
+
+.alert-error {
+    background: #fee2e2;
+    border: 1px solid #fca5a5;
+    color: #991b1b;
+}
+
+.logout-btn {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    color: #6b7280;
+    text-align: left;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 0.875rem;
+}
+
+.logout-btn:hover {
+    color: #b82626;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .sidebar.show {
+        transform: translateX(0);
+    }
+
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .top-bar {
+        padding: 0.5em;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .toggle-btn {
+        align-self: flex-end;
+    }
+
+    .admin-username {
+        align-items: flex-start; /* Aligns text to left on smaller screens */
+    }
+}
+
+@media (max-width: 480px) {
+    .username {
+        font-size: 0.6em; /* Adjust font size for very small screens */
+    }
+
+    .content {
+        padding: 1rem;
+    }
+/* Mail design  */
+    .message-card {
+        transition: all 0.3s ease;
+    }
+    
+    .message-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    .status-badge {
+        transition: all 0.3s ease;
+    }
+    
+    .status-badge:hover {
+        transform: scale(1.05);
+    }
+}
