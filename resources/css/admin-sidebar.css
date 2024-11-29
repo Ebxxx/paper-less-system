@@ -39,6 +39,14 @@ body {
     border-bottom: 1px solid #e5e7eb;
 }
 
+.user-sidebar-header {
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #e5e7eb;
+}
+
 .logo {
     font-size: 1.5rem;
     font-weight: bold;
