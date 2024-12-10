@@ -35,6 +35,18 @@
                     <i class="fas fa-envelope mr-2"></i> Mail
                 </a>
 
+                <a href="#" onclick="event.preventDefault(); document.getElementById('maintenance-form').submit();"
+                class="nav-item">
+                    <i class="fas fa-wrench mr-2"></i> 
+                    Maintenance Mode: <span class="ml-1 {{ auth()->user()->maintenance_mode ? 'text-green-500' : 'text-red-500' }}">
+                        {{ auth()->user()->maintenance_mode ? 'ON' : 'OFF' }}
+                    </span>
+                </a>
+
+                <form id="maintenance-form" action="{{ route('superadmin.maintenance.toggle') }}" method="POST" style="display: none;">
+                    @csrf
+                </form>
+
                 <form method="POST" action="{{ route('superadmin.logout') }}" class="mt-auto">
                     @csrf
                     <button type="submit" class="logout-btn">

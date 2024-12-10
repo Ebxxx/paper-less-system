@@ -6,7 +6,11 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\SuperadminController;
+use App\Http\Middleware\CheckMaintenanceMode;
 
+Route::get('/maintenance', function () {
+    return view('maintenance');
+})->name('maintenance');
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -62,9 +66,21 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
             Route::post('/store-admin', [SuperadminController::class, 'storeAdmin'])->name('store-admin');
 
             Route::get('/superadmin/user-statistics', [SuperadminController::class, 'getUserStatistics'])->middleware('auth:superadmin');
+            Route::post('/maintenance/toggle', [SuperadminController::class, 'toggleMaintenance'])
+                ->name('maintenance.toggle');
+            Route::get('/superadmin/maintenance/switch', [SuperAdminController::class, 'maintenanceSwitch'])
+                ->name('superadmin.maintenance.switch');
         });
 });
 
+Route::middleware([CheckMaintenanceMode::class])->group(function () {
+    Route::get('/', function () {
+        return redirect()->route('login');
+    });
 
+    Route::get('/dashboard', function () {
+        return view('user.dashboard');
+    })->middleware(['auth', 'verified'])->name('dashboard');
+});
 
 require __DIR__.'/auth.php';

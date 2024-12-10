@@ -112,4 +112,18 @@ class SuperadminController extends Controller
             'totalAdmins' => $totalAdmins,
         ]);
     }
+
+    public function toggleMaintenance()
+    {
+        $superadmin = auth()->user();
+        $newStatus = $superadmin->toggleMaintenanceMode();
+        
+        return back()->with('success', 'Maintenance mode ' . ($newStatus ? 'enabled' : 'disabled'));
+    }
+
+    public function maintenanceSwitch()
+    {
+        // Your maintenance switch logic here
+        return view('superadmin.maintenance');
+    }
 }
