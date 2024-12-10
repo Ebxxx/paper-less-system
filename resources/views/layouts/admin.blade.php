@@ -28,7 +28,7 @@
                 </a>
                 <a href="{{ route('admin.mail.message') }}"
                    class="nav-item {{ request()->routeIs('') ? 'active' : '' }}">
-                    <i class="fas fa-envelope mr-2"></i> Mail
+                    <i class="fas fa-envelope mr-2"></i> Mail Moderation
                 </a>
                 <form method="POST" action="{{ route('logout') }}" class="mt-auto">
                     @csrf

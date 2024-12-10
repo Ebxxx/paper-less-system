@@ -8,31 +8,31 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/bootstrap.js'])
-    @vite(['resources/css/admin.css', 'resources/js/admin.js'])
+    @vite(['resources/css/admin-sidebar.css', 'resources/js/admin.js'])
 </head>
 <body>
     <div class="layout">
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <a href="{{ route('superadmin.dashboard') }}" class="logo">Welcome dev</a>
+                <a href="{{ route('superadmin.dashboard') }}" class="logo">Welcome dev!</a>
             </div>
             <nav class="nav-menu">
                 <a href="{{ route('superadmin.dashboard') }}" 
-                   class="nav-item {{ request()->routeIs('admin.AdminDashboard') ? 'active' : '' }}">
+                   class="nav-item {{ request()->routeIs('superadmin.dashboard') ? 'active' : '' }}">
                     <i class="fas fa-tachometer-alt mr-2"></i> Dashboard
                 </a>
                 <a href="{{ route('superadmin.create-admin') }}"
-                   class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                    <i class="fas fa-users mr-2"></i> Create admin
+                   class="nav-item {{ request()->routeIs('superadmin.create-admin') ? 'active' : '' }}">
+                    <i class="fas fa-users mr-2"></i> Create Admin
                 </a>
                 <a href="{{ route('admin.users.index') }}"
-                   class="nav-item {{ request()->routeIs('') ? 'active' : '' }}">
-                    <i class="fas fa-user mr-2"></i> Manage user
+                   class="nav-item {{ request()->routeIs('admin.users.index') ? 'active' : '' }}">
+                    <i class="fas fa-user mr-2"></i> Manage Users
                 </a>
-                <a href="{{ route('admin.users.index') }}"
-                   class="nav-item {{ request()->routeIs('') ? 'active' : '' }}">
-                    <i class="fas fa-message mr-2"></i> Message
+                <a href="{{ route('admin.mail.message') }}"
+                   class="nav-item {{ request()->routeIs('admin.mail.message') ? 'active' : '' }}">
+                    <i class="fas fa-envelope mr-2"></i> Mail
                 </a>
 
                 <form method="POST" action="{{ route('superadmin.logout') }}" class="mt-auto">
