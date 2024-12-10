@@ -1,67 +1,13 @@
-// document.addEventListener('DOMContentLoaded', function() {
-//     // User Type Distribution Chart
-//     const userTypeCtx = document.getElementById('userTypeChart').getContext('2d');
-//     new Chart(userTypeCtx, {
-//         type: 'pie',
-//         data: {
-//             labels: ['Admins', 'Regular Users'],
-//             datasets: [{
-//                 data: [adminCount, regularUserCount],
-//                 backgroundColor: ['#3B82F6', '#10B981']
-//             }]
-//         },
-//         options: {
-//             responsive: true,
-//             plugins: {
-//                 legend: {
-//                     position: 'top',
-//                 },
-//                 title: {
-//                     display: false
-//                 }
-//             }
-//         }
-//     });
-
-//     // User Growth Chart
-//     const userGrowthCtx = document.getElementById('userGrowthChart').getContext('2d');
-//     new Chart(userGrowthCtx, {
-//         type: 'bar',
-//         data: {
-//             labels: userGrowthLabels,
-//             datasets: [{
-//                 label: 'New Users',
-//                 data: userGrowthData,
-//                 backgroundColor: 'rgba(75, 192, 192, 0.6)'
-//             }]
-//         },
-//         options: {
-//             responsive: true,
-//             scales: {
-//                 y: {
-//                     beginAtZero: true
-//                 }
-//             },
-//             plugins: {
-//                 legend: {
-//                     display: false
-//                 },
-//                 title: {
-//                     display: false
-//                 }
-//             }
-//         }
-//     });
-// });
-
-
 document.addEventListener('DOMContentLoaded', function() {
     // User Type Chart
     const userTypeCtx = document.getElementById('userTypeChart').getContext('2d');
     new Chart(userTypeCtx, {
-        type: 'pie',
+        type: 'doughnut',
         data: {
-            labels: ['Admins', 'Regular Users'],
+            labels: [
+                `Admins: ${adminCount}`,
+                `Users: ${regularUserCount}`
+            ],
             datasets: [{
                 data: [adminCount, regularUserCount],
                 backgroundColor: [
@@ -72,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     'rgba(255, 99, 132, 1)',
                     'rgba(54, 162, 235, 1)'
                 ],
-                borderWidth: 1
+                borderWidth: 2
             }]
         },
         options: {
@@ -80,7 +26,13 @@ document.addEventListener('DOMContentLoaded', function() {
             plugins: {
                 title: {
                     display: true,
-                    text: 'User Type Distribution'
+                    text: 'User Type Distribution',
+                    font: {
+                        size: 15
+                    }
+                },
+                legend: {
+                    position: 'top'
                 }
             }
         }
@@ -105,15 +57,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // User Growth Chart
     const userGrowthCtx = document.getElementById('userGrowthChart').getContext('2d');
     new Chart(userGrowthCtx, {
-        type: 'bar',
+        type: 'line',
         data: {
             labels: userGrowthLabels,
             datasets: [{
                 label: 'Users ' + selectedYear,
                 data: userGrowthData,
-                backgroundColor: monthColors.slice(0, userGrowthLabels.length),
-                borderColor: monthColors.slice(0, userGrowthLabels.length).map(color => color.replace('0.7)', '1)')),
-                borderWidth: 1
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
             }]
         },
         options: {
@@ -123,14 +77,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: 'Number of Users'
+                        text: 'Number of Users',
+                        font: {
+                            size: 14
+                        }
                     }
                 }
             },
             plugins: {
                 title: {
                     display: true,
-                    text: 'Monthly User Growth in ' + selectedYear
+                    text: 'Monthly User Growth in ' + selectedYear,
+                    font: {
+                        size: 18
+                    }
                 }
             }
         }

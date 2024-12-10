@@ -28,7 +28,8 @@ class User extends Authenticatable
         'signature_path',
         'job_title',
         'program',
-        'department'
+        'department',
+        'is_online'
     ];
 
 

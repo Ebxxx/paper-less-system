@@ -18,7 +18,15 @@ class AuthenticatedSessionController extends Controller
     public function create(): View
     {
         return view('auth.login');
+
+        if ($user->role !== 'admin') {
+            Auth::logout();
+            return back()->withErrors([
+                'email' => 'You do not have admin access.',
+            ]);
+        }
     }
+    
 
     /**
      * Handle an incoming authentication request.
@@ -29,6 +37,9 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // Update user's online status to true after login
+        Auth::user()->update(['is_online' => true]);
+
         return redirect()->intended(RouteServiceProvider::HOME);
     }
 
@@ -37,6 +48,9 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        // Update user's online status to false before logout
+        Auth::user()->update(['is_online' => false]);
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
