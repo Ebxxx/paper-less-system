@@ -17,7 +17,8 @@ class Superadmin extends Authenticatable
         'fullname', 
         'email', 
         'password', 
-        'is_active'
+        'is_active',
+        'maintenance_mode'
     ];
 
     protected $hidden = [
@@ -27,11 +28,19 @@ class Superadmin extends Authenticatable
 
     protected $casts = [
         'is_active' => 'boolean',
-        'last_login_at' => 'datetime'
+        'last_login_at' => 'datetime',
+        'maintenance_mode' => 'boolean'
     ];
 
     public function setPasswordAttribute($value)
     {
         $this->attributes['password'] = Hash::make($value);
+    }
+
+    public function toggleMaintenanceMode()
+    {
+        $this->maintenance_mode = !$this->maintenance_mode;
+        $this->save();
+        return $this->maintenance_mode;
     }
 }
