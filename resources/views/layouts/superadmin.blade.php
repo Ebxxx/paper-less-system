@@ -26,26 +26,20 @@
                    class="nav-item {{ request()->routeIs('superadmin.create-admin') ? 'active' : '' }}">
                     <i class="fas fa-users mr-2"></i> Create Admin
                 </a>
-                <a href="{{ route('admin.users.index') }}"
+                <!-- <a href="{{ route('admin.users.index') }}"
                    class="nav-item {{ request()->routeIs('admin.users.index') ? 'active' : '' }}">
                     <i class="fas fa-user mr-2"></i> Manage Users
-                </a>
+                </a> -->
                 <a href="{{ route('admin.mail.message') }}"
                    class="nav-item {{ request()->routeIs('admin.mail.message') ? 'active' : '' }}">
-                    <i class="fas fa-envelope mr-2"></i> Mail
+                    <i class="fas fa-clipboard-list mr-2"></i> Activity logs
                 </a>
+                
 
-                <a href="#" onclick="event.preventDefault(); document.getElementById('maintenance-form').submit();"
-                class="nav-item">
-                    <i class="fas fa-wrench mr-2"></i> 
-                    Maintenance Mode: <span class="ml-1 {{ auth()->user()->maintenance_mode ? 'text-green-500' : 'text-red-500' }}">
-                        {{ auth()->user()->maintenance_mode ? 'ON' : 'OFF' }}
-                    </span>
+                <a href="{{ route('superadmin.maintenance') }}"
+                   class="nav-item {{ request()->routeIs('superadmin.maintenanceSwitch') ? 'active' : '' }}">
+                    <i class="fas fa-wrench mr-2"></i> Maintenance Mode
                 </a>
-
-                <form id="maintenance-form" action="{{ route('superadmin.maintenance.toggle') }}" method="POST" style="display: none;">
-                    @csrf
-                </form>
 
                 <form method="POST" action="{{ route('superadmin.logout') }}" class="mt-auto">
                     @csrf

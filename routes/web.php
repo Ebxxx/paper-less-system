@@ -66,10 +66,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
             Route::post('/store-admin', [SuperadminController::class, 'storeAdmin'])->name('store-admin');
 
             Route::get('/superadmin/user-statistics', [SuperadminController::class, 'getUserStatistics'])->middleware('auth:superadmin');
-            Route::post('/maintenance/toggle', [SuperadminController::class, 'toggleMaintenance'])
+            Route::post('/maintenance/toggle', [SuperadminController::class, 'maintenanceToggle'])
                 ->name('maintenance.toggle');
-            Route::get('/superadmin/maintenance/switch', [SuperAdminController::class, 'maintenanceSwitch'])
-                ->name('superadmin.maintenance.switch');
+            Route::get('/maintenance', [SuperadminController::class, 'maintenanceView'])
+                ->name('maintenance');
         });
 });
 
