@@ -30,12 +30,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/messages', [MessageController::class, 'store'])->name('messages.store');
 });
 
-Route::middleware('guest')->group(function () {
-    Route::get('admin/login', [AdminAuthController::class, 'showLoginForm'])
-        ->name('admin.login');
-    Route::post('admin/login', [AdminAuthController::class, 'login']);
-});
-
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::post('/logout', [AdminAuthController::class, 'logout']) ->name('admin.logout');
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.AdminDashboard');
