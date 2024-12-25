@@ -38,7 +38,13 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         // Update user's online status to true after login
-        Auth::user()->update(['is_online' => true]);
+        $user = Auth::user();
+        $user->update(['is_online' => true]);
+
+        // Redirect based on role
+        if ($user->role === 'admin') {
+            return redirect()->intended(route('admin.AdminDashboard'));
+        }
 
         return redirect()->intended(RouteServiceProvider::HOME);
     }
