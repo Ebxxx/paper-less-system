@@ -1,47 +1,215 @@
 <?php
 
-
 namespace App\Http\Controllers;
-
-use App\Models\User;
 use App\Models\Message;
+use App\Models\User;
+use App\Models\MessageAttachment;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class MessageController extends Controller
 {
-    public function index()
+    public function inbox()
     {
-        $users = User::where('id', '!=', Auth::id())->get();
-        return view('messages.index', compact('users'));
+        $messages = Message::where('to_user_id', auth()->id())
+                         ->where('is_archived', false)
+                         ->with(['sender', 'attachments'])
+                         ->orderBy('created_at', 'desc')
+                         ->paginate(15);
+
+        return view('mail.inbox', compact('messages'));
     }
 
-    public function chat(User $user)
+    public function sent()
     {
-        $messages = Message::where(function($query) use ($user) {
-            $query->where('sender_id', Auth::id())
-                  ->where('receiver_id', $user->id);
-        })->orWhere(function($query) use ($user) {
-            $query->where('sender_id', $user->id)
-                  ->where('receiver_id', Auth::id());
-        })->orderBy('created_at')->get();
-
-        return view('messages.chat', compact('user', 'messages'));
+        $messages = Message::where('from_user_id', auth()->id())
+                         ->with(['recipient', 'attachments'])
+                         ->orderBy('created_at', 'desc')
+                         ->paginate(15);
+        return view('mail.sent', compact('messages'));
     }
 
-    public function store(Request $request)
+    public function compose()
     {
-        $request->validate([
-            'receiver_id' => 'required|exists:users,id',
-            'content' => 'required|string'
+        $users = User::where('id', '!=', auth()->id())->get();
+        return view('mail.compose', compact('users'));
+    }
+
+    public function send(Request $request)
+    {
+        // Validate the request
+        $validated = $request->validate([
+            'to_user_id' => 'required|exists:users,id',
+            'subject' => 'required|string|max:255',
+            'content' => 'required|string',
+            'attachments' => 'nullable|array',
+            'attachments.*' => 'file|max:10240|mimes:pdf,doc,docx,txt,jpg,jpeg,png' // 10MB max per file
         ]);
 
-        Message::create([
-            'sender_id' => Auth::id(),
-            'receiver_id' => $request->receiver_id,
-            'content' => $request->content
+        // Create the message
+        $message = Message::create([
+            'from_user_id' => auth()->id(),
+            'to_user_id' => $validated['to_user_id'],
+            'subject' => $validated['subject'],
+            'content' => $validated['content'],
         ]);
 
-        return redirect()->back();
+        // Handle multiple file attachments
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                try {
+                    // Generate a unique filename
+                    $filename = uniqid() . '_' . $file->getClientOriginalName();
+                    
+                    // Store the file
+                    $path = $file->storeAs('attachments', $filename, 'public');
+                    
+                    // Create attachment record
+                    MessageAttachment::create([
+                        'message_id' => $message->id,
+                        'filename' => $path,
+                        'original_filename' => $file->getClientOriginalName(),
+                        'mime_type' => $file->getMimeType(),
+                        'file_size' => $file->getSize(),
+                    ]);
+                } catch (\Exception $e) {
+                    // Log the error but continue with other files
+                    \Log::error('File upload failed: ' . $e->getMessage());
+                    continue;
+                }
+            }
+        }
+
+        return redirect()->route('mail.sent')->with('success', 'Message sent successfully!');
+    }
+
+    public function show(Message $message)
+    {
+        // Check if user has permission to view this message
+        if (auth()->id() !== $message->to_user_id && auth()->id() !== $message->from_user_id) {
+            abort(403);
+        }
+
+        // Eager load relationships
+        $message->load(['sender', 'recipient', 'attachments']);
+
+        // Mark as read if recipient is viewing
+        if (auth()->id() === $message->to_user_id && !$message->read_at) {
+            $message->update(['read_at' => now()]);
+        }
+
+        return view('mail.show', compact('message'));
+    }
+
+    // Add these methods for the additional functionality
+    public function toggleStar(Message $message)
+    {
+        // Check if user has permission
+        if (auth()->id() !== $message->to_user_id && auth()->id() !== $message->from_user_id) {
+            abort(403);
+        }
+
+        $message->update(['is_starred' => !$message->is_starred]);
+        
+        // Return JSON response for AJAX requests
+        if (request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'is_starred' => $message->is_starred
+            ]);
+        }
+
+        return back();
+    }
+
+    public function archive()
+    {
+        try {
+            $messages = Message::where('to_user_id', auth()->id())
+                             ->where('is_archived', true)
+                             ->with(['sender', 'attachments'])
+                             ->orderBy('created_at', 'desc')
+                             ->paginate(15);
+
+            return view('mail.archive', compact('messages'));
+        } catch (\Exception $e) {
+            \Log::error('Archive error: ' . $e->getMessage());
+            return back()->with('error', 'Unable to load archived messages.');
+        }
+    }
+
+    public function bulkArchive(Request $request)
+    {
+        $validated = $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:messages,id'
+        ]);
+
+        Message::whereIn('id', $validated['ids'])
+              ->where('to_user_id', auth()->id())
+              ->update(['is_archived' => true]);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function bulkUnarchive(Request $request)
+    {
+        $validated = $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:messages,id'
+        ]);
+
+        Message::whereIn('id', $validated['ids'])
+              ->where('to_user_id', auth()->id())
+              ->update(['is_archived' => false]);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function toggleArchive(Message $message)
+    {
+        if (auth()->id() !== $message->to_user_id) {
+            abort(403);
+        }
+
+        $message->update(['is_archived' => !$message->is_archived]);
+        return back();
+    }
+
+    public function download(MessageAttachment $attachment)
+    {
+        // Check if user has permission to download
+        $message = $attachment->message;
+        if (auth()->id() !== $message->to_user_id && auth()->id() !== $message->from_user_id) {
+            abort(403);
+        }
+
+        // Check if file exists
+        if (!Storage::disk('public')->exists($attachment->filename)) {
+            abort(404, 'File not found');
+        }
+
+        return Storage::disk('public')->download(
+            $attachment->filename,
+            $attachment->original_filename
+        );
+    }
+
+    public function toggleRead(Message $message)
+    {
+        if (auth()->id() !== $message->to_user_id) {
+            abort(403);
+        }
+
+        $message->update(['read_at' => $message->read_at ? null : now()]);
+
+        if (request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'read' => !is_null($message->read_at)
+            ]);
+        }
+
+        return back();
     }
 }

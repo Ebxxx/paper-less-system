@@ -14,24 +14,24 @@
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <a href="{{ route('dashboard') }}" class="logo">Welcome {{ auth()->user()->username}}</a>
+                <span class="logo">{{ auth()->user()->username }}</span>
             </div>
             <nav class="nav-menu">
-                <a href="{{ route('dashboard') }}" 
-                   class="nav-item {{ request()->routeIs(' ') ? 'active' : '' }}">
+                <a href="{{ route('mail.inbox') }}" 
+                   class="nav-item {{ request()->routeIs('mail.inbox') ? 'active' : '' }}">
                     <i class="fa fa-inbox mr-2"></i> Inbox
                 </a>
-                <a href="{{ route('dashboard') }}"
-                   class="nav-item {{ request()->routeIs(' ') ? 'active' : '' }}">
-                    <i class="fas fa-paper-plane mr-2"></i> Send a letter
+                <a href="{{ route('mail.compose') }}"
+                   class="nav-item {{ request()->routeIs('mail.compose') ? 'active' : '' }}">
+                    <i class="fas fa-paper-plane mr-2"></i> Compose
                 </a>
-                <a href="{{ route('dashboard') }}"
-                   class="nav-item {{ request()->routeIs(' ') ? 'active' : '' }}">
+                <a href="{{ route('mail.sent') }}"
+                   class="nav-item {{ request()->routeIs('mail.sent') ? 'active' : '' }}">
                     <i class="fas fa-envelope mr-2"></i> Sent
                 </a>
-                <a href="{{ route('dashboard') }}"
-                   class="nav-item {{ request()->routeIs(' ') ? 'active' : '' }}">
-                    <i class="fas fa-bullhorn mr-2"></i> Announcement
+                <a href="{{ route('mail.archive') }}"
+                   class="nav-item {{ request()->routeIs('mail.archive') ? 'active' : '' }}">
+                    <i class="fas fa-archive mr-2"></i> Archive
                 </a>
                 <form method="POST" action="{{ route('logout') }}" class="mt-auto">
                     @csrf

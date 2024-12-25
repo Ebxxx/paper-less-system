@@ -16,10 +16,6 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-Route::get('/dashboard', function () {
-    return view('user.dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -28,6 +24,21 @@ Route::middleware('auth')->group(function () {
     Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
     Route::get('/messages/{user}', [MessageController::class, 'chat'])->name('messages.chat');
     Route::post('/messages', [MessageController::class, 'store'])->name('messages.store');
+
+    // Archive routes should come before the {message} route to avoid conflicts
+    Route::get('/mail/archive', [MessageController::class, 'archive'])->name('mail.archive');
+    Route::post('/mail/bulk-archive', [MessageController::class, 'bulkArchive'])->name('mail.bulk-archive');
+    Route::post('/mail/bulk-unarchive', [MessageController::class, 'bulkUnarchive'])->name('mail.bulk-unarchive');
+
+    // Other mail routes
+    Route::get('/mail/inbox', [MessageController::class, 'inbox'])->name('mail.inbox');
+    Route::get('/mail/compose', [MessageController::class, 'compose'])->name('mail.compose');
+    Route::post('/mail/send', [MessageController::class, 'send'])->name('mail.send');
+    Route::get('/mail/sent', [MessageController::class, 'sent'])->name('mail.sent');
+    Route::get('/mail/{message}', [MessageController::class, 'show'])->name('mail.show');
+    Route::post('/mail/{message}/star', [MessageController::class, 'toggleStar'])->name('mail.toggle-star');
+    Route::post('/mail/{message}/toggle-archive', [MessageController::class, 'toggleArchive'])->name('mail.toggle-archive');
+    Route::post('/mail/{message}/toggle-read', [MessageController::class, 'toggleRead'])->name('mail.toggle-read');
 });
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
@@ -76,5 +87,8 @@ Route::middleware([CheckMaintenanceMode::class])->group(function () {
         return view('user.dashboard');
     })->middleware(['auth', 'verified'])->name('dashboard');
 });
+
+Route::get('/mail/attachment/{attachment}/download', [MessageController::class, 'download'])
+    ->name('mail.download');
 
 require __DIR__.'/auth.php';
