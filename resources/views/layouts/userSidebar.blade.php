@@ -18,8 +18,12 @@
             </div>
             <nav class="nav-menu">
                 <a href="{{ route('mail.inbox') }}" 
-                   class="nav-item {{ request()->routeIs('mail.inbox') ? 'active' : '' }}">
+                   class="nav-item {{ request()->routeIs('mail.inbox') ? 'active' : '' }} relative"
+                   id="inbox-link">
                     <i class="fa fa-inbox mr-2"></i> Inbox
+                    @if(auth()->user()->unreadMessages()->count() > 0)
+                        <span class="absolute top-0 right-0 transform translate-x-1 -translate-y-1 h-3 w-3 bg-red-600 rounded-full" id="unread-dot"></span>
+                    @endif
                 </a>
                 <a href="{{ route('mail.compose') }}"
                    class="nav-item {{ request()->routeIs('mail.compose') ? 'active' : '' }}">
@@ -121,5 +125,101 @@
             </main>
         </div>
     </div>
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Enable Pusher logging for debugging
+            Pusher.logToConsole = true;
+
+            // Initialize Pusher
+            const pusher = new Pusher('{{ config('broadcasting.connections.pusher.key') }}', {
+                cluster: '{{ config('broadcasting.connections.pusher.options.cluster') }}',
+                encrypted: true,
+                authEndpoint: '/broadcasting/auth'
+            });
+
+            // Subscribe to the private channel
+            const channelName = 'private-messages.{{ auth()->id() }}';
+            const channel = pusher.subscribe(channelName);
+
+            console.log('Subscribing to channel:', channelName);
+
+            // Debug connection status
+            pusher.connection.bind('connected', () => {
+                console.log('Connected to Pusher');
+            });
+
+            pusher.connection.bind('error', error => {
+                console.error('Pusher connection error:', error);
+            });
+
+            // Function to add/show red dot
+            function showUnreadDot() {
+                const inboxLink = document.getElementById('inbox-link');
+                let redDot = document.getElementById('unread-dot');
+                
+                if (!redDot) {
+                    redDot = document.createElement('span');
+                    redDot.id = 'unread-dot';
+                    redDot.className = 'absolute top-0 right-0 transform translate-x-1 -translate-y-1 h-3 w-3 bg-red-600 rounded-full';
+                    inboxLink.appendChild(redDot);
+                }
+            }
+
+            // Function to remove/hide red dot
+            function hideUnreadDot() {
+                const redDot = document.getElementById('unread-dot');
+                if (redDot) {
+                    redDot.remove();
+                }
+            }
+
+            // Listen for new messages
+            channel.bind('new.message', function(data) {
+                console.log('New message received:', data);
+                showUnreadDot();
+                
+                // Show notification
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    new Notification('New mail From ' + data.sender.username);
+                }
+            });
+
+            // Listen for subscription succeeded
+            channel.bind('pusher:subscription_succeeded', () => {
+                console.log('Successfully subscribed to channel');
+            });
+
+            // Listen for subscription error
+            channel.bind('pusher:subscription_error', error => {
+                console.error('Subscription error:', error);
+            });
+
+            // Check unread messages periodically (as backup)
+            function checkUnreadMessages() {
+                fetch('/api/unread-count')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.count > 0) {
+                            showUnreadDot();
+                        } else {
+                            hideUnreadDot();
+                        }
+                    })
+                    .catch(error => console.error('Error checking unread messages:', error));
+            }
+
+            // Check unread messages every 30 seconds as a fallback
+            setInterval(checkUnreadMessages, 30000);
+
+            // Initial check for unread messages
+            checkUnreadMessages();
+
+            // Request notification permission if not granted
+            if ('Notification' in window && Notification.permission !== 'granted') {
+                Notification.requestPermission();
+            }
+        });
+    </script>
 </body>
 </html>
