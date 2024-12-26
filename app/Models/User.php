@@ -62,5 +62,22 @@ class User extends Authenticatable
 {
     return trim("{$this->first_name} {$this->middle_name} {$this->last_name}");
 }
-    
+
+    public function receivedMessages()
+    {
+        return $this->hasMany(Message::class, 'to_user_id');
+    }
+
+    public function sentMessages()
+    {
+        return $this->hasMany(Message::class, 'from_user_id');
+    }
+
+    public function unreadMessages()
+    {
+        return $this->receivedMessages()
+                    ->whereNull('read_at')
+                    ->where('is_archived', false);
+    }
+
 }

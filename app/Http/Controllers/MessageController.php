@@ -6,6 +6,8 @@ use App\Models\User;
 use App\Models\MessageAttachment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Events\NewMessageReceived;
+use App\Events\MessageRead;
 
 class MessageController extends Controller
 {
@@ -80,6 +82,15 @@ class MessageController extends Controller
             }
         }
 
+        // Broadcast the new message event
+        broadcast(new NewMessageReceived($message))->toOthers();
+
+        // Add debug logging
+        \Log::info('Message sent and broadcast', [
+            'message_id' => $message->id,
+            'to_user' => $validated['to_user_id']
+        ]);
+
         return redirect()->route('mail.sent')->with('success', 'Message sent successfully!');
     }
 
@@ -93,9 +104,15 @@ class MessageController extends Controller
         // Eager load relationships
         $message->load(['sender', 'recipient', 'attachments']);
 
-        // Mark as read if recipient is viewing
+        // If recipient is viewing, automatically mark as read
         if (auth()->id() === $message->to_user_id && !$message->read_at) {
-            $message->update(['read_at' => now()]);
+            $message->update([
+                'read_at' => now(),
+                'is_read' => true
+            ]);
+
+            // Broadcast message read event
+            broadcast(new MessageRead($message->to_user_id))->toOthers();
         }
 
         return view('mail.show', compact('message'));
