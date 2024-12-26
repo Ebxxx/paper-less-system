@@ -31,7 +31,13 @@
                                                 </div>
                                             </td>
                                             <td class="px-6 py-4">
-                                                <div class="text-sm text-gray-900">{{ $message->subject }}</div>
+                                                <div class="text-sm text-gray-900">
+                                                @if(optional($message->attachments)->count() > 0)
+                                                        <span class="text-gray-400">
+                                                            <i class="fas fa-paperclip"></i>
+                                                        </span>
+                                                    @endif
+                                                    {{ $message->subject }}</div>
                                                 <div class="text-sm text-gray-500">
                                                     {{ Str::limit($message->content, 50) }}
                                                 </div>
@@ -44,7 +50,7 @@
                                                     <!-- Read/Unread Status with Icon -->
                                                     <span class="group relative">
                                                         <i class="fas {{ $message->read_at ? 'fa-envelope-open' : 'fa-envelope' }} 
-                                                          {{ $message->read_at ? 'text-green-600' : 'text-blue-600' }}">
+                                                          {{ $message->read_at ? 'text-grey-600' : 'text-grey-600' }}">
                                                         </i>
                                                         <!-- Tooltip -->
                                                         <span class="absolute hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap z-10">
@@ -52,12 +58,7 @@
                                                         </span>
                                                     </span>
 
-                                                    <!-- Attachment Status -->
-                                                    @if(optional($message->attachments)->count() > 0)
-                                                        <span class="text-gray-400">
-                                                            <i class="fas fa-paperclip"></i>
-                                                        </span>
-                                                    @endif
+                                    
                                                 </div>
                                             </td>
                                         </tr>

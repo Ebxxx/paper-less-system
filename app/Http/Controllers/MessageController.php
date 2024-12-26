@@ -93,9 +93,12 @@ class MessageController extends Controller
         // Eager load relationships
         $message->load(['sender', 'recipient', 'attachments']);
 
-        // Mark as read if recipient is viewing
+        // If recipient is viewing, automatically mark as read
         if (auth()->id() === $message->to_user_id && !$message->read_at) {
-            $message->update(['read_at' => now()]);
+            $message->update([
+                'read_at' => now(),
+                'is_read' => true
+            ]);
         }
 
         return view('mail.show', compact('message'));

@@ -11,7 +11,7 @@
                                    <!-- Read/Unread Status with Icon -->
                                    <span class="group relative">
                                              <i class="fas {{ $message->read_at ? 'fa-envelope-open' : 'fa-envelope' }} 
-                                                                  {{ $message->read_at ? 'text-green-600' : 'text-blue-600' }}">
+                                                                  {{ $message->read_at ? 'text-gray-600' : 'text-gray-600' }}">
                                               </i>
                                                 <!-- Tooltip -->
                                                 <span class="absolute hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap z-10">
