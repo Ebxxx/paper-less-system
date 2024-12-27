@@ -44,63 +44,69 @@ class MessageController extends Controller
     {
         // Validate the request
         $validated = $request->validate([
-            'to_user_id' => 'required|exists:users,id',
+            'to_user_ids' => 'required|array',
+            'to_user_ids.*' => 'exists:users,id',
             'subject' => 'required|string|max:255',
             'content' => 'required|string',
             'attachments' => 'nullable|array',
             'attachments.*' => 'file|max:10240|mimes:pdf,doc,docx,txt,jpg,jpeg,png'
         ]);
 
-        // Check if recipient is not an admin
-        $recipient = User::find($validated['to_user_id']);
-        if ($recipient->role === 'admin') {
-            return back()->with('error', 'Cannot send messages to admin users.');
-        }
+        $successCount = 0;
+        $failCount = 0;
 
-        // Create the message
-        $message = Message::create([
-            'from_user_id' => auth()->id(),
-            'to_user_id' => $validated['to_user_id'],
-            'subject' => $validated['subject'],
-            'content' => $validated['content'],
-        ]);
+        // Send message to each recipient
+        foreach ($validated['to_user_ids'] as $recipientId) {
+            // Check if recipient is not an admin
+            $recipient = User::find($recipientId);
+            if ($recipient->role === 'admin') {
+                continue; // Skip admin recipients
+            }
 
-        // Handle multiple file attachments
-        if ($request->hasFile('attachments')) {
-            foreach ($request->file('attachments') as $file) {
-                try {
-                    // Generate a unique filename
-                    $filename = uniqid() . '_' . $file->getClientOriginalName();
-                    
-                    // Store the file
-                    $path = $file->storeAs('attachments', $filename, 'public');
-                    
-                    // Create attachment record
-                    MessageAttachment::create([
-                        'message_id' => $message->id,
-                        'filename' => $path,
-                        'original_filename' => $file->getClientOriginalName(),
-                        'mime_type' => $file->getMimeType(),
-                        'file_size' => $file->getSize(),
-                    ]);
-                } catch (\Exception $e) {
-                    // Log the error but continue with other files
-                    \Log::error('File upload failed: ' . $e->getMessage());
-                    continue;
+            try {
+                // Create the message
+                $message = Message::create([
+                    'from_user_id' => auth()->id(),
+                    'to_user_id' => $recipientId,
+                    'subject' => $validated['subject'],
+                    'content' => $validated['content'],
+                ]);
+
+                // Handle attachments for each message
+                if ($request->hasFile('attachments')) {
+                    foreach ($request->file('attachments') as $file) {
+                        $filename = uniqid() . '_' . $file->getClientOriginalName();
+                        $path = $file->storeAs('attachments', $filename, 'public');
+                        
+                        MessageAttachment::create([
+                            'message_id' => $message->id,
+                            'filename' => $path,
+                            'original_filename' => $file->getClientOriginalName(),
+                            'mime_type' => $file->getMimeType(),
+                            'file_size' => $file->getSize(),
+                        ]);
+                    }
                 }
+
+                // Broadcast the new message event
+                broadcast(new NewMessageReceived($message))->toOthers();
+                $successCount++;
+            } catch (\Exception $e) {
+                \Log::error('Failed to send message: ' . $e->getMessage());
+                $failCount++;
             }
         }
 
-        // Broadcast the new message event
-        broadcast(new NewMessageReceived($message))->toOthers();
+        // Prepare response message
+        $message = '';
+        if ($successCount > 0) {
+            $message .= "Successfully sent to $successCount recipient(s). ";
+        }
+        if ($failCount > 0) {
+            $message .= "Failed to send to $failCount recipient(s).";
+        }
 
-        // Add debug logging
-        \Log::info('Message sent and broadcast', [
-            'message_id' => $message->id,
-            'to_user' => $validated['to_user_id']
-        ]);
-
-        return redirect()->route('mail.sent')->with('success', 'Message sent successfully!');
+        return redirect()->route('mail.sent')->with('success', $message);
     }
 
     public function show(Message $message)
