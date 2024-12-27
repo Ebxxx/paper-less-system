@@ -19,14 +19,14 @@ class Message extends Model
         'subject',
         'content',
         'read_at',
-        'is_archived',
-        'is_starred'
+        'is_starred',
+        'is_archived'
     ];
 
     protected $casts = [
         'read_at' => 'datetime',
-        'is_archived' => 'boolean',
-        'is_starred' => 'boolean',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime'
     ];
 
     public function sender(): BelongsTo

@@ -13,9 +13,11 @@
                                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                                 <option value="">Select recipient</option>
                                 @foreach($users as $user)
-                                    <option value="{{ $user->id }}">
-                                        {{ $user->username }} ({{ $user->email }})
-                                    </option>
+                                    @if($user->role !== 'admin')
+                                        <option value="{{ $user->id }}">
+                                            {{ $user->username }} ({{ $user->email }})
+                                        </option>
+                                    @endif
                                 @endforeach
                             </select>
                         </div>

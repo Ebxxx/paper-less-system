@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Models\Message;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -14,20 +15,23 @@ class MessageRead implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $userId;
+    public $message;
 
-    public function __construct($userId)
+    public function __construct(Message $message)
     {
-        $this->userId = $userId;
+        $this->message = $message;
     }
 
     public function broadcastOn()
     {
-        return new PrivateChannel('messages.' . $this->userId);
+        return new PrivateChannel('messages.' . $this->message->from_user_id);
     }
 
-    public function broadcastAs()
+    public function broadcastWith()
     {
-        return 'message.read';
+        return [
+            'message_id' => $this->message->id,
+            'read_at' => $this->message->read_at
+        ];
     }
 } 

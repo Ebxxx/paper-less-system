@@ -33,7 +33,10 @@ class MessageController extends Controller
 
     public function compose()
     {
-        $users = User::where('id', '!=', auth()->id())->get();
+        // Only get non-admin users
+        $users = User::where('id', '!=', auth()->id())
+                     ->where('role', '!=', 'admin')
+                     ->get();
         return view('mail.compose', compact('users'));
     }
 
@@ -45,8 +48,14 @@ class MessageController extends Controller
             'subject' => 'required|string|max:255',
             'content' => 'required|string',
             'attachments' => 'nullable|array',
-            'attachments.*' => 'file|max:10240|mimes:pdf,doc,docx,txt,jpg,jpeg,png' // 10MB max per file
+            'attachments.*' => 'file|max:10240|mimes:pdf,doc,docx,txt,jpg,jpeg,png'
         ]);
+
+        // Check if recipient is not an admin
+        $recipient = User::find($validated['to_user_id']);
+        if ($recipient->role === 'admin') {
+            return back()->with('error', 'Cannot send messages to admin users.');
+        }
 
         // Create the message
         $message = Message::create([
@@ -96,23 +105,14 @@ class MessageController extends Controller
 
     public function show(Message $message)
     {
-        // Check if user has permission to view this message
         if (auth()->id() !== $message->to_user_id && auth()->id() !== $message->from_user_id) {
             abort(403);
         }
 
-        // Eager load relationships
-        $message->load(['sender', 'recipient', 'attachments']);
-
-        // If recipient is viewing, automatically mark as read
+        // Mark message as read if recipient is viewing
         if (auth()->id() === $message->to_user_id && !$message->read_at) {
-            $message->update([
-                'read_at' => now(),
-                'is_read' => true
-            ]);
-
-            // Broadcast message read event
-            broadcast(new MessageRead($message->to_user_id))->toOthers();
+            $message->update(['read_at' => now()]);
+            broadcast(new MessageRead($message))->toOthers();
         }
 
         return view('mail.show', compact('message'));
