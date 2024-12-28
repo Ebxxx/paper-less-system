@@ -19,7 +19,7 @@ class NewMessageReceived implements ShouldBroadcast
 
     public function __construct(Message $message)
     {
-        $this->message = $message->load(['sender', 'attachments']);
+        $this->message = $message->load(['sender', 'attachments', 'mark']);
     }
 
     public function broadcastOn()
@@ -44,7 +44,12 @@ class NewMessageReceived implements ShouldBroadcast
                 'email' => $this->message->sender->email,
             ],
             'has_attachments' => $this->message->attachments->count() > 0,
-            'read_at' => null
+            'read_at' => null,
+            'mark' => $this->message->mark ? [
+                'is_important' => $this->message->mark->is_important,
+                'is_urgent' => $this->message->mark->is_urgent,
+                'deadline' => $this->message->mark->deadline
+            ] : null
         ];
     }
 } 

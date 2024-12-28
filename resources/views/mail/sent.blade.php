@@ -31,13 +31,24 @@
                                                 </div>
                                             </td>
                                             <td class="px-6 py-4">
-                                                <div class="text-sm text-gray-900">
-                                                @if(optional($message->attachments)->count() > 0)
-                                                        <span class="text-gray-400">
-                                                            <i class="fas fa-paperclip"></i>
+                                                <div class="flex items-center space-x-2">
+                                                    @if($message->mark?->is_important)
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                            <i class="fas fa-exclamation-circle mr-1"></i>Important
                                                         </span>
                                                     @endif
-                                                    {{ $message->subject }}</div>
+                                                    @if($message->mark?->is_urgent)
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                                                            <i class="fas fa-exclamation-triangle mr-1"></i>Urgent
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                                <div class="text-sm text-gray-900 mt-1">
+                                                    @if(optional($message->attachments)->count() > 0)
+                                                        <i class="fas fa-paperclip text-gray-400 mr-1"></i>
+                                                    @endif
+                                                    {{ $message->subject }}
+                                                </div>
                                                 <div class="text-sm text-gray-500">
                                                     {{ Str::limit($message->content, 50) }}
                                                 </div>
@@ -50,7 +61,7 @@
                                                     <!-- Read/Unread Status with Icon -->
                                                     <span class="group relative">
                                                         <i class="fas {{ $message->read_at ? 'fa-envelope-open' : 'fa-envelope' }} 
-                                                          {{ $message->read_at ? 'text-grey-600' : 'text-grey-600' }}">
+                                                          {{ $message->read_at ? 'text-gray-600' : 'text-gray-600' }}">
                                                         </i>
                                                         <!-- Tooltip -->
                                                         <span class="absolute hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap z-10">

@@ -64,6 +64,50 @@
                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
                         </div>
 
+                        <!-- Add this after the content textarea and before the action buttons -->
+                        <div class="space-y-4 mt-4 border-t pt-4">
+                            <div class="flex items-center space-x-6">
+                                <!-- Important Mark -->
+                                <label class="inline-flex items-center">
+                                    <input type="checkbox" 
+                                           name="is_important" 
+                                           value="1"
+                                           class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                    <span class="ml-2 text-sm text-gray-700">
+                                        <i class="fas fa-exclamation-circle text-yellow-500 mr-1"></i> Mark as Important
+                                    </span>
+                                </label>
+
+                                <!-- Urgent Mark -->
+                                <label class="inline-flex items-center">
+                                    <input type="checkbox" 
+                                           name="is_urgent" 
+                                           value="1"
+                                           class="rounded border-gray-300 text-red-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
+                                    <span class="ml-2 text-sm text-gray-700">
+                                        <i class="fas fa-exclamation-triangle text-red-500 mr-1"></i> Mark as Urgent
+                                    </span>
+                                </label>
+                            </div>
+
+                            <!-- Deadline -->
+                            <div class="flex items-center space-x-4">
+                                <label class="inline-flex items-center">
+                                    <input type="checkbox" 
+                                           id="has_deadline" 
+                                           class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                    <span class="ml-2 text-sm text-gray-700">Set Deadline</span>
+                                </label>
+                                
+                                <div id="deadline_container" class="hidden">
+                                    <input type="datetime-local" 
+                                           name="deadline" 
+                                           id="deadline" 
+                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Action Buttons Bar -->
                         <div class="flex items-center space-x-1 border-t pt-4">
                             <!-- Send Button -->
@@ -249,6 +293,21 @@
             closeOnSelect: false
         });
     });
+
+    document.getElementById('has_deadline').addEventListener('change', function() {
+        const deadlineContainer = document.getElementById('deadline_container');
+        const deadlineInput = document.getElementById('deadline');
+        
+        deadlineContainer.classList.toggle('hidden');
+        if (this.checked) {
+            // Set minimum date to today
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            deadlineInput.min = now.toISOString().slice(0, 16);
+        } else {
+            deadlineInput.value = '';
+        }
+    });
     </script>
 
     @push('styles')
@@ -258,8 +317,8 @@
         background-color: #f3f4f6;
     }
 
-    .recipient-checkbox:checked + div {
-        background-color: #f3f4f6;
+    .recipient-checkbox {
+        cursor: pointer;
     }
     </style>
     @endpush

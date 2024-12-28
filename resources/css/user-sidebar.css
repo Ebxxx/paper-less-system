@@ -218,3 +218,27 @@ body {
         transform: scale(1.05);
     }
 }
+
+/* Search highlight styles */
+.search-highlight {
+    @apply bg-yellow-200;
+    transition: background-color 0.2s ease;
+}
+
+.search-highlight:hover {
+    @apply bg-yellow-300;
+}
+
+/* Animation for new highlights */
+@keyframes highlightFade {
+    from {
+        background-color: theme('colors.yellow.300');
+    }
+    to {
+        background-color: theme('colors.yellow.200');
+    }
+}
+
+.search-highlight {
+    animation: highlightFade 0.5s ease-out;
+}

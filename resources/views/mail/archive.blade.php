@@ -44,7 +44,19 @@
                                                 </div>
                                             </td>
                                             <td class="px-6 py-4">
-                                                <div class="text-sm text-gray-900">
+                                                <div class="flex items-center space-x-2">
+                                                    @if($message->mark?->is_important)
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                            <i class="fas fa-exclamation-circle mr-1"></i>Important
+                                                        </span>
+                                                    @endif
+                                                    @if($message->mark?->is_urgent)
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                                                            <i class="fas fa-exclamation-triangle mr-1"></i>Urgent
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                                <div class="text-sm text-gray-900 mt-1">
                                                     @if(optional($message->attachments)->count() > 0)
                                                         <i class="fas fa-paperclip text-gray-400 mr-1"></i>
                                                     @endif

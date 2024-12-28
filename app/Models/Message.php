@@ -18,12 +18,15 @@ class Message extends Model
         'to_user_id',
         'subject',
         'content',
+        'is_important',
+        'is_urgent',
+        'deadline',
         'read_at',
         'is_starred',
         'is_archived'
     ];
 
-    protected $casts = [
+    protected $casts = [        
         'read_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
@@ -43,4 +46,11 @@ class Message extends Model
     {
         return $this->hasMany(MessageAttachment::class);
     }
+
+    public function mark()
+    {
+        return $this->hasOne(MessageMark::class);
+    }
+
+    protected $with = ['mark'];
 }

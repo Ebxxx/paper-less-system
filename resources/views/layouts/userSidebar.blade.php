@@ -18,6 +18,10 @@
                 <span class="logo">{{ auth()->user()->username }}</span>
             </div>
             <nav class="nav-menu">
+                <a href="{{ route('mail.compose') }}"
+                   class="nav-item {{ request()->routeIs('mail.compose') ? 'active' : '' }}">
+                    <i class="fas fa-paper-plane mr-2"></i> Compose
+                </a>
                 <a href="{{ route('mail.inbox') }}" 
                    class="nav-item {{ request()->routeIs('mail.inbox') ? 'active' : '' }} relative"
                    id="inbox-link">
@@ -26,9 +30,9 @@
                         <span class="absolute top-0 right-0 transform translate-x-1 -translate-y-1 h-3 w-3 bg-red-600 rounded-full" id="unread-dot"></span>
                     @endif
                 </a>
-                <a href="{{ route('mail.compose') }}"
-                   class="nav-item {{ request()->routeIs('mail.compose') ? 'active' : '' }}">
-                    <i class="fas fa-paper-plane mr-2"></i> Compose
+                <a href="{{ route('mail.starred') }}"
+                   class="nav-item {{ request()->routeIs('mail.starred') ? 'active' : '' }}">
+                    <i class="fas fa-star mr-2"></i> Starred
                 </a>
                 <a href="{{ route('mail.sent') }}"
                    class="nav-item {{ request()->routeIs('mail.sent') ? 'active' : '' }}">
@@ -37,10 +41,6 @@
                 <a href="{{ route('mail.archive') }}"
                    class="nav-item {{ request()->routeIs('mail.archive') ? 'active' : '' }}">
                     <i class="fas fa-archive mr-2"></i> Archive
-                </a>
-                <a href="{{ route('mail.archive') }}"
-                   class="nav-item {{ request()->routeIs('mail.') ? 'active' : '' }}">
-                    <i class="fas fa-bullhorn mr-2"></i> Announcement
                 </a>
                 <!-- <form method="POST" action="{{ route('logout') }}" class="mt-auto">
                     @csrf
@@ -57,6 +57,27 @@
                 <button class="toggle-btn" id="toggle-sidebar">
                     <i class="fas fa-bars"></i>
                 </button>
+                <div class="flex-1 px-4">
+                    <form action="{{ request()->url() }}" method="GET" class="max-w-lg">
+                        <div class="relative">
+                            <input type="text" 
+                                   name="search" 
+                                   value="{{ request('search') }}"
+                                   class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500"
+                                   placeholder="Search in {{ request()->segment(2) ?? 'messages' }}...">
+                            <div class="absolute left-3 top-2.5 text-gray-400">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            @if(request('search'))
+                                <button type="button" 
+                                        onclick="window.location.href='{{ request()->url() }}'"
+                                        class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            @endif
+                        </div>
+                    </form>
+                </div>
                 <div class="hidden sm:flex sm:items-center sm:ms-6">
                     <div class="relative" x-data="{ open: false }" @click.away="open = false" @close.stop="open = false">
                         <button @click="open = !open" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
@@ -212,6 +233,22 @@
             // Request notification permission if not granted
             if ('Notification' in window && Notification.permission !== 'granted') {
                 Notification.requestPermission();
+            }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-submit form when typing (with debounce)
+            let timeout = null;
+            const searchInput = document.querySelector('input[name="search"]');
+            
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => {
+                        this.closest('form').submit();
+                    }, 500); // Wait 500ms after user stops typing
+                });
             }
         });
     </script>

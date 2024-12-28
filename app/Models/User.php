@@ -25,10 +25,10 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
-        'signature_path',
         'job_title',
         'program',
         'department',
+        'signature_path',
         'is_online'
     ];
 
