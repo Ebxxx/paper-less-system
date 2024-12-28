@@ -24,10 +24,18 @@
                                             onclick="window.location='{{ route('mail.show', $message->id) }}'">
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="text-sm font-medium text-gray-900">
-                                                    {{ $message->recipient->username }}
+                                                    @if(request('search'))
+                                                        {!! App\Helpers\TextHelper::highlight($message->recipient->username, request('search')) !!}
+                                                    @else
+                                                        {{ $message->recipient->username }}
+                                                    @endif
                                                 </div>
                                                 <div class="text-sm text-gray-500">
-                                                    {{ $message->recipient->email }}
+                                                    @if(request('search'))
+                                                        {!! App\Helpers\TextHelper::highlight($message->recipient->email, request('search')) !!}
+                                                    @else
+                                                        {{ $message->recipient->email }}
+                                                    @endif
                                                 </div>
                                             </td>
                                             <td class="px-6 py-4">
@@ -44,13 +52,21 @@
                                                     @endif
                                                 </div>
                                                 <div class="text-sm text-gray-900 mt-1">
-                                                    @if(optional($message->attachments)->count() > 0)
+                                                    <!-- @if(optional($message->attachments)->count() > 0)
                                                         <i class="fas fa-paperclip text-gray-400 mr-1"></i>
+                                                    @endif -->
+                                                    @if(request('search'))
+                                                        {!! App\Helpers\TextHelper::highlight($message->subject, request('search')) !!}
+                                                    @else
+                                                        {{ $message->subject }}
                                                     @endif
-                                                    {{ $message->subject }}
                                                 </div>
                                                 <div class="text-sm text-gray-500">
-                                                    {{ Str::limit($message->content, 50) }}
+                                                    @if(request('search'))
+                                                        {!! App\Helpers\TextHelper::highlight(Str::limit($message->content, 50), request('search')) !!}
+                                                    @else
+                                                        {{ Str::limit($message->content, 50) }}
+                                                    @endif
                                                 </div>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

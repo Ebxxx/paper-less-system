@@ -106,9 +106,9 @@
                                                     @endif
                                                 </div>
                                                 <div class="text-sm text-gray-900 mt-1">
-                                                    @if(optional($message->attachments)->count() > 0)
+                                                    <!-- @if(optional($message->attachments)->count() > 0)
                                                         <i class="fas fa-paperclip text-gray-400 mr-1"></i>
-                                                    @endif
+                                                    @endif -->
                                                     <span class="font-medium">
                                                         @if(request('search'))
                                                             {!! App\Helpers\TextHelper::highlight($message->subject, request('search')) !!}
