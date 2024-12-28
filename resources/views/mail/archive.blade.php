@@ -37,21 +37,49 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap cursor-pointer" onclick="window.location='{{ route('mail.show', $message->id) }}'">
                                                 <div class="text-sm text-gray-900">
-                                                    {{ $message->sender->username }}
+                                                    @if(request('search'))
+                                                        {!! App\Helpers\TextHelper::highlight($message->sender->username, request('search')) !!}
+                                                    @else
+                                                        {{ $message->sender->username }}
+                                                    @endif
                                                 </div>
                                                 <div class="text-sm text-gray-500">
-                                                    {{ $message->sender->email }}
+                                                    @if(request('search'))
+                                                        {!! App\Helpers\TextHelper::highlight($message->sender->email, request('search')) !!}
+                                                    @else
+                                                        {{ $message->sender->email }}
+                                                    @endif
                                                 </div>
                                             </td>
                                             <td class="px-6 py-4">
-                                                <div class="text-sm text-gray-900">
-                                                    @if(optional($message->attachments)->count() > 0)
-                                                        <i class="fas fa-paperclip text-gray-400 mr-1"></i>
+                                                <div class="flex items-center space-x-2">
+                                                    @if($message->mark?->is_important)
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                            <i class="fas fa-exclamation-circle mr-1"></i>Important
+                                                        </span>
                                                     @endif
-                                                    {{ $message->subject }}
+                                                    @if($message->mark?->is_urgent)
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                                                            <i class="fas fa-exclamation-triangle mr-1"></i>Urgent
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                                <div class="text-sm text-gray-900 mt-1">
+                                                    <!-- @if(optional($message->attachments)->count() > 0)
+                                                        <i class="fas fa-paperclip text-gray-400 mr-1"></i>
+                                                    @endif -->
+                                                    @if(request('search'))
+                                                        {!! App\Helpers\TextHelper::highlight($message->subject, request('search')) !!}
+                                                    @else
+                                                        {{ $message->subject }}
+                                                    @endif
                                                 </div>
                                                 <div class="text-sm text-gray-500">
-                                                    {{ Str::limit($message->content, 50) }}
+                                                    @if(request('search'))
+                                                        {!! App\Helpers\TextHelper::highlight(Str::limit($message->content, 50), request('search')) !!}
+                                                    @else
+                                                        {{ Str::limit($message->content, 50) }}
+                                                    @endif
                                                 </div>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

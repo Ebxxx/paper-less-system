@@ -12,6 +12,18 @@
                         </div>
                     </div>
 
+                    <!-- Tab Navigation -->
+                    <div class="border-b border-gray-200 mb-4">
+                        <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                            <a href="#" class="tab-link border-blue-500 text-blue-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm active" data-tab="primary">
+                                <i class="fas fa-inbox mr-2"></i>Primary
+                            </a>
+                            <a href="#" class="tab-link border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" data-tab="priority">
+                                <i class="fas fa-tag mr-2"></i>Priority
+                            </a>
+                        </nav>
+                    </div>
+
                     @if($messages->isEmpty())
                         <p class="text-gray-500 text-center py-4">Your inbox is empty.</p>
                     @else
@@ -66,21 +78,51 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="text-sm text-gray-900">
-                                                    {{ $message->sender->username }}
+                                                    @if(request('search'))
+                                                        {!! App\Helpers\TextHelper::highlight($message->sender->username, request('search')) !!}
+                                                    @else
+                                                        {{ $message->sender->username }}
+                                                    @endif
                                                 </div>
                                                 <div class="text-sm text-gray-500">
-                                                    {{ $message->sender->email }}
+                                                    @if(request('search'))
+                                                        {!! App\Helpers\TextHelper::highlight($message->sender->email, request('search')) !!}
+                                                    @else
+                                                        {{ $message->sender->email }}
+                                                    @endif
                                                 </div>
                                             </td>
                                             <td class="px-6 py-4">
-                                                <div class="text-sm text-gray-900">
-                                                    @if(optional($message->attachments)->count() > 0)
-                                                        <i class="fas fa-paperclip text-gray-400 mr-1"></i>
+                                                <div class="flex items-center space-x-2">
+                                                    @if($message->mark?->is_important)
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                            <i class="fas fa-exclamation-circle mr-1"></i>Important
+                                                        </span>
                                                     @endif
-                                                    {{ $message->subject }}
+                                                    @if($message->mark?->is_urgent)
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                                                            <i class="fas fa-exclamation-triangle mr-1"></i>Urgent
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                                <div class="text-sm text-gray-900 mt-1">
+                                                    <!-- @if(optional($message->attachments)->count() > 0)
+                                                        <i class="fas fa-paperclip text-gray-400 mr-1"></i>
+                                                    @endif -->
+                                                    <span class="font-medium">
+                                                        @if(request('search'))
+                                                            {!! App\Helpers\TextHelper::highlight($message->subject, request('search')) !!}
+                                                        @else
+                                                            {{ $message->subject }}
+                                                        @endif
+                                                    </span>
                                                 </div>
                                                 <div class="text-sm text-gray-500">
-                                                    {{ Str::limit($message->content, 50) }}
+                                                    @if(request('search'))
+                                                        {!! App\Helpers\TextHelper::highlight(Str::limit($message->content, 50), request('search')) !!}
+                                                    @else
+                                                        {{ Str::limit($message->content, 50) }}
+                                                    @endif
                                                 </div>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -88,10 +130,8 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="flex items-center space-x-2">
-                                                    <!-- Read/Unread Status Icon with Tooltip -->
                                                     <span class="group relative">
-                                                        <i class="fas {{ $message->read_at ? 'fa-envelope-open text-grey-400' : 'fa-envelope text-grey-600' }}"></i>
-                                                        <!-- Tooltip -->
+                                                        <i class="fas {{ $message->read_at ? 'fa-envelope-open text-gray-400' : 'fa-envelope text-gray-600' }}"></i>
                                                         <span class="absolute hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap z-10">
                                                             {{ $message->read_at ? 'Read' : 'Unread' }}
                                                         </span>
@@ -173,6 +213,7 @@
         // Listen for new messages
         channel.bind('new.message', function(data) {
             log('New message received:', data);
+            log('Message mark data:', data.mark); // Debug log
             
             const tbody = document.querySelector('tbody');
             if (!tbody) {
@@ -180,7 +221,6 @@
                 return;
             }
 
-            // Create new message row
             try {
                 const tr = createMessageRow(data);
                 
@@ -200,11 +240,14 @@
                 // Update the checkbox event listeners
                 updateCheckboxListeners();
 
+                // Update tab display immediately
+                updateTabDisplay();
+
                 // Show notification
                 showNotification(data);
-
             } catch (error) {
                 console.error('Error creating message row:', error);
+                console.error('Message data:', data);
             }
         });
 
@@ -223,7 +266,7 @@
                                class="message-checkbox rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                         
                         <form action="/mail/${data.id}/star" method="POST" class="inline">
-                            @csrf
+                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
                             <button type="submit" class="focus:outline-none group relative">
                                 <i class="fas fa-star text-gray-300 hover:text-yellow-400"></i>
                                 <span class="absolute hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap z-10">
@@ -233,7 +276,7 @@
                         </form>
 
                         <form action="/mail/${data.id}/archive" method="POST" class="inline">
-                            @csrf
+                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
                             <button type="submit" class="text-gray-400 hover:text-gray-600 focus:outline-none group relative">
                                 <i class="fas fa-archive"></i>
                                 <span class="absolute hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap z-10">
@@ -248,19 +291,31 @@
                     <div class="text-sm text-gray-500">${data.sender.email}</div>
                 </td>
                 <td class="px-6 py-4">
-                    <div class="text-sm text-gray-900">
-                        ${data.has_attachments ? '<i class="fas fa-paperclip text-gray-400 mr-1"></i>' : ''}
-                        ${data.subject}
+                    <div class="flex items-center space-x-2">
+                        ${data.mark && data.mark.is_important ? `
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                                <i class="fas fa-exclamation-circle mr-1"></i>Important
+                            </span>
+                        ` : ''}
+                        ${data.mark && data.mark.is_urgent ? `
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>Urgent
+                            </span>
+                        ` : ''}
                     </div>
-                    <div class="text-sm text-gray-500">${data.content}</div>
+                    <div class="text-sm text-gray-900 mt-1">
+                        ${data.attachments && data.attachments.length > 0 ? '<i class="fas fa-paperclip text-gray-400 mr-1"></i>' : ''}
+                        <span class="font-medium">${data.subject}</span>
+                    </div>
+                    <div class="text-sm text-gray-500">${data.content.length > 100 ? data.content.substring(0, 100) + '...' : data.content}</div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    ${data.created_at}
+                    ${new Date(data.created_at).toLocaleString()}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                     <div class="flex items-center space-x-2">
                         <span class="group relative">
-                            <i class="fas fa-envelope text-grey-600"></i>
+                            <i class="fas fa-envelope text-gray-600"></i>
                             <span class="absolute hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap z-10">
                                 Unread
                             </span>
@@ -270,6 +325,44 @@
             `;
 
             return tr;
+        }
+
+        // Helper function to add event listeners to a row
+        function addRowEventListeners(row) {
+            // Star toggle
+            const starForm = row.querySelector('form[action*="star"]');
+            if (starForm) {
+                starForm.addEventListener('submit', handleStarToggle);
+            }
+
+            // Archive toggle
+            const archiveForm = row.querySelector('form[action*="archive"]');
+            if (archiveForm) {
+                archiveForm.addEventListener('submit', handleArchiveToggle);
+            }
+
+            // Checkbox
+            const checkbox = row.querySelector('.message-checkbox');
+            if (checkbox) {
+                checkbox.addEventListener('change', handleCheckboxChange);
+            }
+        }
+
+        // Event handler functions
+        function handleStarToggle(e) {
+            e.preventDefault();
+            // ... existing star toggle code ...
+        }
+
+        function handleArchiveToggle(e) {
+            e.preventDefault();
+            // ... existing archive toggle code ...
+        }
+
+        function handleCheckboxChange() {
+            const checkedBoxes = document.querySelectorAll('.message-checkbox:checked');
+            const bulkActions = document.getElementById('bulkActions');
+            bulkActions.style.display = checkedBoxes.length > 0 ? 'block' : 'none';
         }
 
         // Helper function to show notification
@@ -399,5 +492,49 @@
 
         // Initialize checkbox listeners for existing checkboxes
         updateCheckboxListeners();
+
+        // Tab switching functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.tab-link');
+            let currentTab = 'primary';
+
+            function updateTabDisplay() {
+                const currentTab = document.querySelector('.tab-link.border-blue-500').dataset.tab;
+                const rows = document.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    if (currentTab === 'primary') {
+                        row.style.display = '';
+                    } else {
+                        const hasMarks = row.querySelector('.bg-yellow-100, .bg-red-100');
+                        row.style.display = hasMarks ? '' : 'none';
+                    }
+                });
+            }
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    currentTab = this.dataset.tab;
+                    
+                    // Update active tab styling
+                    tabs.forEach(t => {
+                        t.classList.remove('border-blue-500', 'text-blue-600');
+                        t.classList.add('border-transparent', 'text-gray-500');
+                    });
+                    this.classList.remove('border-transparent', 'text-gray-500');
+                    this.classList.add('border-blue-500', 'text-blue-600');
+
+                    updateTabDisplay();
+                });
+            });
+
+            // Update display when new messages arrive
+            channel.bind('new.message', function(data) {
+                // Your existing new message code...
+                
+                // Update tab display after adding new message
+                setTimeout(updateTabDisplay, 100);
+            });
+        });
     </script>
 </x-app-layout> 

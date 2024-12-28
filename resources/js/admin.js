@@ -18,7 +18,24 @@ function checkWindowSize() {
     }
 }
 
-// dropdown js
+// Alert timeout function
+function setupAlertTimeout() {
+    const alerts = document.querySelectorAll('.alert-timeout');
+    
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            alert.style.transition = 'opacity 0.5s ease-in-out';
+            alert.style.opacity = '0';
+            setTimeout(() => {
+                alert.remove();
+            }, 500);
+        }, 3000);
+    });
+}
+
+// Initialize alert timeout on page load
+document.addEventListener('DOMContentLoaded', setupAlertTimeout);
+
 window.addEventListener('resize', checkWindowSize);
 checkWindowSize(); // Check on initial load
 

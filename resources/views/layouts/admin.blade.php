@@ -9,6 +9,7 @@
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/bootstrap.js'])
     @vite(['resources/css/admin-sidebar.css', 'resources/js/admin.js'])
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body>
     <div class="layout">
@@ -56,12 +57,12 @@
                 <div class="py-6">
                     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                         @if (session('success'))
-                            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+                            <div class="alert-timeout bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
                                 {{ session('success') }}
                             </div>
                         @endif
                         @if ($errors->any())
-                            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                            <div class="alert-timeout bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
                                 <ul>
                                     @foreach ($errors->all() as $error)
                                         <li>{{ $error }}</li>
@@ -75,5 +76,6 @@
             </main>
         </div>
     </div>
+    @stack('scripts')
 </body>
 </html>

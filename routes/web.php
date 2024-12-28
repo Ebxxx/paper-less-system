@@ -33,8 +33,14 @@ Route::middleware('auth')->group(function () {
     // Other mail routes
     Route::get('/mail/inbox', [MessageController::class, 'inbox'])->name('mail.inbox');
     Route::get('/mail/compose', [MessageController::class, 'compose'])->name('mail.compose');
-    Route::post('/mail/send', [MessageController::class, 'send'])->name('mail.send');
     Route::get('/mail/sent', [MessageController::class, 'sent'])->name('mail.sent');
+    Route::get('/mail/archive', [MessageController::class, 'archive'])->name('mail.archive');
+    
+    // Add the new starred route here
+    Route::get('/mail/starred', [MessageController::class, 'starred'])->name('mail.starred');
+    
+    // Other mail routes
+    Route::post('/mail/send', [MessageController::class, 'send'])->name('mail.send');
     Route::get('/mail/{message}', [MessageController::class, 'show'])->name('mail.show');
     Route::post('/mail/{message}/star', [MessageController::class, 'toggleStar'])->name('mail.toggle-star');
     Route::post('/mail/{message}/toggle-archive', [MessageController::class, 'toggleArchive'])->name('mail.toggle-archive');

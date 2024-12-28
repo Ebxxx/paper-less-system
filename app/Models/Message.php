@@ -18,15 +18,18 @@ class Message extends Model
         'to_user_id',
         'subject',
         'content',
+        'is_important',
+        'is_urgent',
+        'deadline',
         'read_at',
-        'is_archived',
-        'is_starred'
+        'is_starred',
+        'is_archived'
     ];
 
-    protected $casts = [
+    protected $casts = [        
         'read_at' => 'datetime',
-        'is_archived' => 'boolean',
-        'is_starred' => 'boolean',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime'
     ];
 
     public function sender(): BelongsTo
@@ -43,4 +46,11 @@ class Message extends Model
     {
         return $this->hasMany(MessageAttachment::class);
     }
+
+    public function mark()
+    {
+        return $this->hasOne(MessageMark::class);
+    }
+
+    protected $with = ['mark'];
 }
