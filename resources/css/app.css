@@ -27,3 +27,59 @@ mark:hover {
 .search-highlight {
     animation: highlightFade 0.5s ease-out;
 }
+
+/* Updated Pagination Styles */
+.pagination {
+    @apply flex justify-end items-center space-x-2;
+}
+
+.pagination > * {
+    @apply inline-flex items-center justify-center;
+    @apply min-w-[32px] h-8;
+    @apply text-sm font-medium;
+    @apply rounded;
+    @apply transition-colors duration-150 ease-in-out;
+    @apply border-none;
+}
+
+/* Current/Active page */
+.pagination .active {
+    @apply bg-[#2B4B8C] text-white;
+}
+
+/* Regular page numbers */
+.pagination span:not(.active),
+.pagination a {
+    @apply bg-transparent text-gray-700 hover:bg-gray-100;
+}
+
+/* Next/Prev arrows */
+.pagination svg {
+    @apply w-4 h-4 text-gray-600;
+}
+
+/* Hide unwanted elements */
+.pagination span[aria-hidden="true"] {
+    @apply hidden;
+}
+
+/* Additional spacing for the text elements */
+.pagination span:not([aria-hidden="true"]) {
+    @apply px-2;
+}
+
+/* Style for the double arrow (last page) */
+.pagination a[rel="next"] svg,
+.pagination a[rel="last"] svg {
+    @apply mr-1;
+}
+
+/* Remove default button styles */
+.pagination button {
+    @apply bg-transparent border-none;
+}
+
+/* Add styles for the message count */
+.text-gray-700 {
+    @apply text-sm pl-6;  /* Added padding-left to match the right padding */
+}
