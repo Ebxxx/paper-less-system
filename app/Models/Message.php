@@ -23,7 +23,8 @@ class Message extends Model
         'deadline',
         'read_at',
         'is_starred',
-        'is_archived'
+        'is_archived',
+        'parent_id'
     ];
 
     protected $casts = [        
@@ -61,16 +62,23 @@ class Message extends Model
 
     public function replies()
     {
-        return $this->hasMany(Message::class, 'parent_id')->orderBy('created_at', 'asc');
+        return $this->hasMany(Message::class, 'parent_id')
+            ->orderBy('created_at', 'asc');
     }
 
     public function thread()
     {
-        return $this->parent_id ? $this->parentMessage->thread() : $this;
+        if ($this->parent_id) {
+            return $this->parentMessage->thread();
+        }
+        return $this;
     }
 
     public function getAllReplies()
     {
-        return $this->replies()->with(['sender', 'recipient', 'mark', 'attachments'])->get();
+        return $this->replies()
+            ->with(['sender', 'recipient', 'mark', 'attachments'])
+            ->get()
+            ->concat($this->replies()->get()->flatMap->getAllReplies());
     }
 }

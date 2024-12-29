@@ -146,38 +146,84 @@
                         {!! nl2br(e($message->content)) !!}
                     </div>
 
+                    <!-- Attachments Section - Moved here -->
+                    @if(optional($message->attachments)->count() > 0)
+                        <div class="mb-8 border-t pt-4">
+                            <h3 class="text-lg font-medium mb-2">Attachments</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                @foreach($message->attachments as $attachment)
+                                    <div class="flex items-center p-3 border rounded-lg">
+                                        <i class="fas fa-file mr-3 text-gray-400"></i>
+                                        <div class="flex-grow">
+                                            <div class="text-sm font-medium">{{ $attachment->original_filename }}</div>
+                                            <div class="text-xs text-gray-500">{{ number_format($attachment->file_size / 1024, 2) }} KB</div>
+                                        </div>
+                                        <a href="{{ route('mail.download', $attachment) }}" 
+                                           class="ml-4 text-blue-600 hover:text-blue-800">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
                     <!-- Add conversation thread section -->
                     @if($message->replies->count() > 0 || $message->parent_id)
                         <div class="mt-8 border-t pt-6">
                             <h3 class="text-lg font-medium mb-4">Conversation History</h3>
                             
                             <div class="space-y-6">
-                                @if($message->parent_id)
-                                    @php
-                                        $threadStart = $message->thread();
-                                        $conversationMessages = collect([$threadStart])
-                                            ->merge($threadStart->getAllReplies())
-                                            ->sortBy('created_at');
-                                    @endphp
-                                @else
-                                    @php
-                                        $conversationMessages = collect([$message])
-                                            ->merge($message->getAllReplies())
-                                            ->sortBy('created_at');
-                                    @endphp
-                                @endif
+                                @php
+                                    // Get the root message (first message in the thread)
+                                    $rootMessage = $message->parent_id ? $message->thread() : $message;
+                                    
+                                    // Get all messages in the conversation including the root message
+                                    $conversationMessages = collect([$rootMessage])
+                                        ->merge($rootMessage->getAllReplies())
+                                        ->sortBy('created_at');
+                                @endphp
 
                                 @foreach($conversationMessages as $threadMessage)
                                     <div class="border-l-4 {{ $threadMessage->id === $message->id ? 'border-blue-500' : 'border-gray-200' }} pl-4">
                                         <div class="flex justify-between items-start mb-2">
-                                            <div>
-                                                <span class="font-medium">{{ $threadMessage->sender->username }}</span>
-                                                <span class="text-gray-500 text-sm ml-2">{{ $threadMessage->created_at->format('M d, Y h:i A') }}</span>
+                                            <div class="flex items-start space-x-3">
+                                                <!-- User Avatar -->
+                                                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-sm font-semibold">
+                                                    {{ strtoupper(substr($threadMessage->sender->username, 0, 1)) }}
+                                                </div>
+                                                
+                                                <div>
+                                                    <div class="flex items-center">
+                                                        <span class="font-medium">{{ $threadMessage->sender->username }}</span>
+                                                        <span class="mx-2 text-gray-500">→</span>
+                                                        <span class="font-medium">{{ $threadMessage->recipient->username }}</span>
+                                                    </div>
+                                                    <span class="text-gray-500 text-sm">{{ $threadMessage->created_at->format('M d, Y h:i A') }}</span>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="prose max-w-none text-gray-700">
+                                        
+                                        <!-- Message Content -->
+                                        <div class="prose max-w-none text-gray-700 ml-11">
                                             {!! nl2br(e($threadMessage->content)) !!}
                                         </div>
+
+                                        <!-- Show attachments if any -->
+                                        @if($threadMessage->attachments->count() > 0)
+                                            <div class="mt-3 ml-11">
+                                                <div class="text-sm text-gray-500">Attachments:</div>
+                                                <div class="flex flex-wrap gap-2 mt-1">
+                                                    @foreach($threadMessage->attachments as $attachment)
+                                                        <a href="{{ route('mail.download', $attachment) }}" 
+                                                           class="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50">
+                                                            <i class="fas fa-paperclip mr-1"></i>
+                                                            {{ $attachment->original_filename }}
+                                                        </a>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        @endif
                                     </div>
                                 @endforeach
                             </div>
@@ -193,11 +239,17 @@
                         </button>
                     </div>
 
+                    <!-- Add this temporarily for debugging -->
+                    <div class="text-sm text-gray-500">Debug: Message ID: {{ $message->id }}</div>
+
                     <!-- Inline Reply Form -->
                     <div id="replyForm" class="mt-6 border-t pt-6 hidden">
                         <form action="{{ route('mail.send') }}" method="POST" class="space-y-4" enctype="multipart/form-data">
                             @csrf
-                            <input type="hidden" name="parent_id" value="{{ $message->thread()->id }}">
+                            <input type="hidden" name="parent_id" value="{{ $message->id }}">
+                            <!-- Add this temporarily for debugging -->
+                            <div class="text-sm text-gray-500">Debug: Parent ID being sent: {{ $message->id }}</div>
+                            
                             <input type="hidden" name="to_user_ids[]" value="{{ $message->sender->id }}">
                             <input type="hidden" name="subject" value="{{ str_starts_with($message->subject, 'Re:') ? $message->subject : 'Re: ' . $message->subject }}">
 
@@ -322,28 +374,6 @@
                         fileItem.remove();
                     }
                     </script>
-
-                    <!-- After Message Content -->
-                    @if(optional($message->attachments)->count() > 0)
-                        <div class="mt-6 border-t pt-4">
-                            <h3 class="text-lg font-medium mb-2">Attachments</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                @foreach($message->attachments as $attachment)
-                                    <div class="flex items-center p-3 border rounded-lg">
-                                        <i class="fas fa-file mr-3 text-gray-400"></i>
-                                        <div class="flex-grow">
-                                            <div class="text-sm font-medium">{{ $attachment->original_filename }}</div>
-                                            <div class="text-xs text-gray-500">{{ number_format($attachment->file_size / 1024, 2) }} KB</div>
-                                        </div>
-                                        <a href="{{ route('mail.download', $attachment) }}" 
-                                           class="ml-4 text-blue-600 hover:text-blue-800">
-                                            <i class="fas fa-download"></i>
-                                        </a>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endif
                 </div>
             </div>
         </div>

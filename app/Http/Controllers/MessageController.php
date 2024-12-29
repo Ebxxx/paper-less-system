@@ -78,12 +78,12 @@ class MessageController extends Controller
 
     public function send(Request $request)
     {
-        // Update validation for boolean fields
         $validated = $request->validate([
             'to_user_ids' => 'required|array',
             'to_user_ids.*' => 'exists:users,id',
             'subject' => 'required|string|max:255',
             'content' => 'required|string',
+            'parent_id' => 'nullable|exists:messages,id',
             'is_important' => 'sometimes|boolean',
             'is_urgent' => 'sometimes|boolean',
             'deadline' => 'nullable|date|after:now',
@@ -94,30 +94,28 @@ class MessageController extends Controller
         $successCount = 0;
         $failCount = 0;
 
-        // Send message to each recipient
         foreach ($validated['to_user_ids'] as $recipientId) {
-            // Check if recipient is not an admin
-            $recipient = User::find($recipientId);
-            if ($recipient->role === 'admin') {
-                continue; // Skip admin recipients
-            }
-
             try {
-                // Create the message
+                DB::beginTransaction();
+
+                // Create the message with parent_id
                 $message = Message::create([
                     'from_user_id' => auth()->id(),
                     'to_user_id' => $recipientId,
                     'subject' => $validated['subject'],
                     'content' => $validated['content'],
+                    'parent_id' => $request->input('parent_id'),
                 ]);
 
-                // Create message mark with proper boolean values
-                MessageMark::create([
-                    'message_id' => $message->id,
-                    'is_important' => (bool) $request->input('is_important', false),
-                    'is_urgent' => (bool) $request->input('is_urgent', false),
-                    'deadline' => $request->filled('deadline') ? $request->deadline : null
-                ]);
+                // Create message mark
+                if ($request->has('is_important') || $request->has('is_urgent') || $request->has('deadline')) {
+                    MessageMark::create([
+                        'message_id' => $message->id,
+                        'is_important' => $request->boolean('is_important', false),
+                        'is_urgent' => $request->boolean('is_urgent', false),
+                        'deadline' => $request->filled('deadline') ? $request->deadline : null
+                    ]);
+                }
 
                 // Handle attachments if present
                 if ($request->hasFile('attachments')) {
@@ -135,10 +133,16 @@ class MessageController extends Controller
                     }
                 }
 
+                DB::commit();
+
+                // Load relationships including mark
+                $message->load(['sender', 'mark', 'attachments']);
+
                 // Broadcast new message event
                 broadcast(new NewMessageReceived($message))->toOthers();
                 $successCount++;
             } catch (\Exception $e) {
+                DB::rollBack();
                 \Log::error('Failed to send message: ' . $e->getMessage());
                 $failCount++;
             }
@@ -322,70 +326,48 @@ class MessageController extends Controller
             'attachments.*' => 'file|max:10240|mimes:pdf,doc,docx,txt,jpg,jpeg,png'
         ]);
 
-        $successCount = 0;
-        $failCount = 0;
+        try {
+            DB::beginTransaction();
 
-        foreach ($validated['to_user_ids'] as $recipientId) {
-            try {
-                DB::beginTransaction();
+            // Create the message with parent_id
+            $message = Message::create([
+                'from_user_id' => auth()->id(),
+                'to_user_id' => $validated['to_user_ids'][0],
+                'subject' => $validated['subject'],
+                'content' => $validated['content'],
+                'parent_id' => $request->input('parent_id'),
+            ]);
 
-                // Create the message with parent_id if it's a reply
-                $message = Message::create([
-                    'from_user_id' => auth()->id(),
-                    'to_user_id' => $recipientId,
-                    'subject' => $validated['subject'],
-                    'content' => $validated['content'],
-                    'parent_id' => $request->input('parent_id'), // Add parent_id for replies
-                ]);
+            // Create message mark
+            $mark = MessageMark::create([
+                'message_id' => $message->id,
+                'is_important' => $request->boolean('is_important', false),
+                'is_urgent' => $request->boolean('is_urgent', false),
+                'deadline' => $request->filled('deadline') ? $request->deadline : null
+            ]);
 
-                // Create message mark
-                $mark = MessageMark::create([
-                    'message_id' => $message->id,
-                    'is_important' => $request->boolean('is_important', false),
-                    'is_urgent' => $request->boolean('is_urgent', false),
-                    'deadline' => $request->filled('deadline') ? $request->deadline : null
-                ]);
-
-                // Handle attachments if present
-                if ($request->hasFile('attachments')) {
-                    foreach ($request->file('attachments') as $file) {
-                        $filename = uniqid() . '_' . $file->getClientOriginalName();
-                        $path = $file->storeAs('attachments', $filename, 'public');
-                        
-                        MessageAttachment::create([
-                            'message_id' => $message->id,
-                            'filename' => $path,
-                            'original_filename' => $file->getClientOriginalName(),
-                            'mime_type' => $file->getMimeType(),
-                            'file_size' => $file->getSize(),
-                        ]);
-                    }
+            // Handle attachments if present
+            if ($request->hasFile('attachments')) {
+                foreach ($request->file('attachments') as $file) {
+                    $filename = uniqid() . '_' . $file->getClientOriginalName();
+                    $path = $file->storeAs('attachments', $filename, 'public');
+                    
+                    MessageAttachment::create([
+                        'message_id' => $message->id,
+                        'filename' => $path,
+                        'original_filename' => $file->getClientOriginalName(),
+                        'mime_type' => $file->getMimeType(),
+                        'file_size' => $file->getSize(),
+                    ]);
                 }
-
-                DB::commit();
-
-                // Load relationships including mark
-                $message->load(['sender', 'mark', 'attachments']);
-
-                // Broadcast new message event
-                broadcast(new NewMessageReceived($message))->toOthers();
-                $successCount++;
-            } catch (\Exception $e) {
-                DB::rollBack();
-                \Log::error('Failed to send message: ' . $e->getMessage());
-                $failCount++;
             }
-        }
 
-        // Prepare response message
-        $message = '';
-        if ($successCount > 0) {
-            $message .= "Successfully sent to $successCount recipient(s). ";
+            DB::commit();
+            return redirect()->route('mail.sent')->with('success', 'Reply sent successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Failed to send reply: ' . $e->getMessage());
+            return back()->with('error', 'Failed to send reply.');
         }
-        if ($failCount > 0) {
-            $message .= "Failed to send to $failCount recipient(s).";
-        }
-
-        return redirect()->route('mail.sent')->with('success', $message);
     }
 }
