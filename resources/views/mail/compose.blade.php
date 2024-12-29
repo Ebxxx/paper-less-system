@@ -163,6 +163,28 @@
 
                         <!-- Selected Files Display -->
                         <div id="selected-files" class="mt-2 space-y-2"></div>
+
+                        @if($replyTo)
+                            <input type="hidden" name="parent_id" value="{{ $replyTo->id }}">
+                            
+                            <!-- Pre-fill the recipient -->
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    // Assuming you're using Select2 or similar
+                                    let recipientSelect = document.querySelector('select[name="to_user_ids[]"]');
+                                    recipientSelect.value = ['{{ $replyTo->sender->id }}'];
+                                    
+                                    // Pre-fill subject with Re: if it doesn't already start with it
+                                    let subjectInput = document.querySelector('input[name="subject"]');
+                                    let originalSubject = '{{ $replyTo->subject }}';
+                                    subjectInput.value = originalSubject.startsWith('Re:') ? originalSubject : 'Re: ' + originalSubject;
+                                    
+                                    // Add quoted text to content
+                                    let contentTextarea = document.querySelector('textarea[name="content"]');
+                                    contentTextarea.value = `\n\nOn {{ $replyTo->created_at->format('M d, Y, h:i A') }}, {{ $replyTo->sender->username }} wrote:\n> ${originalSubject}`;
+                                });
+                            </script>
+                        @endif
                     </form>
                 </div>
             </div>

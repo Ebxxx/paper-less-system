@@ -142,17 +142,186 @@
                     </div>
 
                     <!-- Message Content -->
-                    <div class="prose max-w-none">
+                    <div class="prose max-w-none mb-8">
                         {!! nl2br(e($message->content)) !!}
                     </div>
 
+                    <!-- Add conversation thread section -->
+                    @if($message->replies->count() > 0 || $message->parent_id)
+                        <div class="mt-8 border-t pt-6">
+                            <h3 class="text-lg font-medium mb-4">Conversation History</h3>
+                            
+                            <div class="space-y-6">
+                                @if($message->parent_id)
+                                    @php
+                                        $threadStart = $message->thread();
+                                        $conversationMessages = collect([$threadStart])
+                                            ->merge($threadStart->getAllReplies())
+                                            ->sortBy('created_at');
+                                    @endphp
+                                @else
+                                    @php
+                                        $conversationMessages = collect([$message])
+                                            ->merge($message->getAllReplies())
+                                            ->sortBy('created_at');
+                                    @endphp
+                                @endif
+
+                                @foreach($conversationMessages as $threadMessage)
+                                    <div class="border-l-4 {{ $threadMessage->id === $message->id ? 'border-blue-500' : 'border-gray-200' }} pl-4">
+                                        <div class="flex justify-between items-start mb-2">
+                                            <div>
+                                                <span class="font-medium">{{ $threadMessage->sender->username }}</span>
+                                                <span class="text-gray-500 text-sm ml-2">{{ $threadMessage->created_at->format('M d, Y h:i A') }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="prose max-w-none text-gray-700">
+                                            {!! nl2br(e($threadMessage->content)) !!}
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
                     <!-- Action Buttons -->
                     <div class="mt-6 flex space-x-4">
-                        <a href="{{ route('mail.compose', ['reply_to' => $message->id]) }}" 
+                        <button type="button"
+                           onclick="toggleReplyForm()"
                            class="inline-flex items-center px-2 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700">
                             <i class="fas fa-reply mr-2"></i> Reply
-                        </a>
+                        </button>
                     </div>
+
+                    <!-- Inline Reply Form -->
+                    <div id="replyForm" class="mt-6 border-t pt-6 hidden">
+                        <form action="{{ route('mail.send') }}" method="POST" class="space-y-4" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="parent_id" value="{{ $message->thread()->id }}">
+                            <input type="hidden" name="to_user_ids[]" value="{{ $message->sender->id }}">
+                            <input type="hidden" name="subject" value="{{ str_starts_with($message->subject, 'Re:') ? $message->subject : 'Re: ' . $message->subject }}">
+
+                            <!-- Message Content -->
+                            <div>
+                                <textarea name="content" rows="6" required
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                    placeholder="Write your reply..."></textarea>
+                            </div>
+
+                            <!-- Message Options -->
+                            <div class="space-y-4">
+                                <div class="flex items-center space-x-6">
+                                    <!-- Important Mark -->
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" name="is_important" value="1"
+                                            class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                        <span class="ml-2 text-sm text-gray-700">
+                                            <i class="fas fa-exclamation-circle text-yellow-500 mr-1"></i> Mark as Important
+                                        </span>
+                                    </label>
+
+                                    <!-- Urgent Mark -->
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" name="is_urgent" value="1"
+                                            class="rounded border-gray-300 text-red-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
+                                        <span class="ml-2 text-sm text-gray-700">
+                                            <i class="fas fa-exclamation-triangle text-red-500 mr-1"></i> Mark as Urgent
+                                        </span>
+                                    </label>
+                                </div>
+
+                                <!-- Deadline -->
+                                <div class="flex items-center space-x-4">
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" id="has_deadline"
+                                            class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                        <span class="ml-2 text-sm text-gray-700">Set Deadline</span>
+                                    </label>
+                                    
+                                    <div id="deadline_container" class="hidden">
+                                        <input type="datetime-local" name="deadline" id="deadline"
+                                            class="mt-1 block rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons Bar -->
+                            <div class="flex items-center space-x-2">
+                                <button type="submit" 
+                                    class="inline-flex items-center px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">
+                                    Send Reply
+                                </button>
+
+                                <!-- Attachment Button -->
+                                <label class="cursor-pointer inline-flex items-center px-2 py-1 text-sm bg-transparent text-gray-700 hover:bg-gray-100 rounded">
+                                    <i class="fas fa-paperclip"></i>
+                                    <input type="file" name="attachments[]" multiple
+                                        class="hidden"
+                                        accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png">
+                                </label>
+
+                                <button type="button" 
+                                    onclick="toggleReplyForm()"
+                                    class="inline-flex items-center px-2 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded">
+                                    Cancel
+                                </button>
+                            </div>
+
+                            <!-- Selected Files Display -->
+                            <div id="selected-files" class="mt-2 space-y-2"></div>
+                        </form>
+                    </div>
+
+                    <script>
+                    function toggleReplyForm() {
+                        const replyForm = document.getElementById('replyForm');
+                        replyForm.classList.toggle('hidden');
+                    }
+
+                    // Handle file selection display
+                    document.querySelector('input[type="file"]').addEventListener('change', function(e) {
+                        const fileList = document.getElementById('selected-files');
+                        fileList.innerHTML = '';
+                        
+                        Array.from(this.files).forEach(file => {
+                            const fileSize = (file.size / 1024 / 1024).toFixed(2);
+                            const fileItem = document.createElement('div');
+                            fileItem.className = 'flex items-center justify-between text-sm text-gray-600 p-2 bg-gray-50 rounded';
+                            
+                            fileItem.innerHTML = `
+                                <div class="flex items-center">
+                                    <i class="fas fa-file mr-2"></i>
+                                    <span>${file.name} (${fileSize} MB)</span>
+                                </div>
+                                <button type="button" class="text-red-500 hover:text-red-700" onclick="removeFile(this)">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            `;
+                            
+                            fileList.appendChild(fileItem);
+                        });
+                    });
+
+                    // Handle deadline checkbox
+                    document.getElementById('has_deadline').addEventListener('change', function() {
+                        const deadlineContainer = document.getElementById('deadline_container');
+                        const deadlineInput = document.getElementById('deadline');
+                        
+                        deadlineContainer.classList.toggle('hidden');
+                        if (this.checked) {
+                            const now = new Date();
+                            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                            deadlineInput.min = now.toISOString().slice(0, 16);
+                        } else {
+                            deadlineInput.value = '';
+                        }
+                    });
+
+                    function removeFile(button) {
+                        const fileItem = button.closest('div');
+                        fileItem.remove();
+                    }
+                    </script>
 
                     <!-- After Message Content -->
                     @if(optional($message->attachments)->count() > 0)

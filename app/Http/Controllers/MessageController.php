@@ -62,13 +62,18 @@ class MessageController extends Controller
         return view('mail.sent', compact('messages'));
     }
 
-    public function compose()
+    public function compose(Request $request)
     {
-        // Only get non-admin users
         $users = User::where('id', '!=', auth()->id())
                      ->where('role', '!=', 'admin')
                      ->get();
-        return view('mail.compose', compact('users'));
+                     
+        $replyTo = null;
+        if ($request->has('reply_to')) {
+            $replyTo = Message::with(['sender', 'recipient'])->findOrFail($request->reply_to);
+        }
+        
+        return view('mail.compose', compact('users', 'replyTo'));
     }
 
     public function send(Request $request)
@@ -309,6 +314,7 @@ class MessageController extends Controller
             'to_user_ids.*' => 'exists:users,id',
             'subject' => 'required|string|max:255',
             'content' => 'required|string',
+            'parent_id' => 'nullable|exists:messages,id',
             'is_important' => 'sometimes|boolean',
             'is_urgent' => 'sometimes|boolean',
             'deadline' => 'nullable|date|after:now',
@@ -323,12 +329,13 @@ class MessageController extends Controller
             try {
                 DB::beginTransaction();
 
-                // Create the message
+                // Create the message with parent_id if it's a reply
                 $message = Message::create([
                     'from_user_id' => auth()->id(),
                     'to_user_id' => $recipientId,
                     'subject' => $validated['subject'],
                     'content' => $validated['content'],
+                    'parent_id' => $request->input('parent_id'), // Add parent_id for replies
                 ]);
 
                 // Create message mark
