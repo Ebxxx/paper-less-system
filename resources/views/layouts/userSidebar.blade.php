@@ -23,12 +23,21 @@
                     <i class="fas fa-paper-plane mr-2"></i> Compose
                 </a>
                 <a href="{{ route('mail.inbox') }}" 
-                   class="nav-item {{ request()->routeIs('mail.inbox') ? 'active' : '' }} relative"
-                   id="inbox-link">
-                    <i class="fa fa-inbox mr-2"></i> Inbox
-                    @if(auth()->user()->unreadMessages()->count() > 0)
-                        <span class="absolute top-0 right-0 transform translate-x-1 -translate-y-1 h-3 w-3 bg-red-600 rounded-full" id="unread-dot"></span>
-                    @endif
+                    class="nav-item {{ request()->routeIs('mail.inbox') ? 'active' : '' }} relative"
+                    id="inbox-link">
+                        <div class="flex justify-between items-center w-full">
+                            <div class="flex items-center">
+                                <i class="fa fa-inbox mr-2"></i> Inbox
+                            </div>
+                            <div class="flex items-center">
+                                <span class="text-sm  text-gray-200 rounded-full px-2 py-0.5 ml-2">
+                                    {{ auth()->user()->receivedMessages()->where('is_archived', false)->count() }}
+                                </span>
+                                @if(auth()->user()->unreadMessages()->count() > 0)
+                                    <span class="absolute top-0 right-0 transform translate-x-1 -translate-y-1 h-3 w-3 bg-red-600 rounded-full" id="unread-dot"></span>
+                                @endif
+                            </div>
+                        </div>
                 </a>
                 <a href="{{ route('mail.starred') }}"
                    class="nav-item {{ request()->routeIs('mail.starred') ? 'active' : '' }}">
@@ -153,9 +162,6 @@
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Enable Pusher logging for debugging
-            Pusher.logToConsole = true;
-
             // Initialize Pusher
             const pusher = new Pusher('{{ config('broadcasting.connections.pusher.key') }}', {
                 cluster: '{{ config('broadcasting.connections.pusher.options.cluster') }}',
@@ -164,10 +170,94 @@
             });
 
             // Subscribe to the private channel
-            const channelName = 'private-messages.{{ auth()->id() }}';
+            const channelName = `private-messages.{{ auth()->id() }}`;
             const channel = pusher.subscribe(channelName);
 
-            console.log('Subscribing to channel:', channelName);
+            // Get DOM elements
+            const inboxCountElement = document.querySelector('#inbox-link .text-sm');
+            const unreadDot = document.getElementById('unread-dot');
+
+            // Function to update counts
+            function updateCounts(unreadCount, inboxCount) {
+                // Update inbox count
+                if (inboxCountElement) {
+                    inboxCountElement.textContent = inboxCount;
+                }
+
+                // Update unread indicator
+                if (unreadCount > 0) {
+                    showUnreadDot();
+                } else {
+                    hideUnreadDot();
+                }
+            }
+
+            // Function to show notification
+            function showNotification(data) {
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    const notification = new Notification('New Message', {
+                        body: `${data.sender.username}: ${data.subject}`,
+                        icon: '/path/to/your/icon.png'
+                    });
+
+                    // Optional: Click on notification to open message
+                    notification.onclick = function() {
+                        window.open(`/mail/${data.id}`, '_blank');
+                    };
+                }
+            }
+
+            // Listen for new messages
+            channel.bind('new.message', function(data) {
+                console.log('New message received:', data);
+                
+                // Update counts
+                updateCounts(data.unread_count, data.inbox_count);
+                
+                // Show notification
+                showNotification(data);
+                
+                // Play notification sound
+                playNotificationSound();
+            });
+
+            // Listen for read status updates
+            channel.bind('message.read', function(data) {
+                console.log('Message read event:', data);
+                
+                // Update counts
+                updateCounts(data.unread_count, data.inbox_count);
+            });
+
+            function playNotificationSound() {
+                try {
+                    const audio = new Audio('/path/to/notification-sound.mp3');
+                    audio.play().catch(e => console.log('Error playing sound:', e));
+                } catch (e) {
+                    console.log('Error with notification sound:', e);
+                }
+            }
+
+            function showUnreadDot() {
+                if (!unreadDot) {
+                    const inboxLink = document.getElementById('inbox-link');
+                    const newDot = document.createElement('span');
+                    newDot.id = 'unread-dot';
+                    newDot.className = 'absolute top-0 right-0 transform translate-x-1 -translate-y-1 h-3 w-3 bg-red-600 rounded-full';
+                    inboxLink.appendChild(newDot);
+                }
+            }
+
+            function hideUnreadDot() {
+                if (unreadDot) {
+                    unreadDot.remove();
+                }
+            }
+
+            // Request notification permission
+            if ('Notification' in window && Notification.permission !== 'granted') {
+                Notification.requestPermission();
+            }
 
             // Debug connection status
             pusher.connection.bind('connected', () => {
@@ -178,72 +268,8 @@
                 console.error('Pusher connection error:', error);
             });
 
-            // Function to add/show red dot
-            function showUnreadDot() {
-                const inboxLink = document.getElementById('inbox-link');
-                let redDot = document.getElementById('unread-dot');
-                
-                if (!redDot) {
-                    redDot = document.createElement('span');
-                    redDot.id = 'unread-dot';
-                    redDot.className = 'absolute top-0 right-0 transform translate-x-1 -translate-y-1 h-3 w-3 bg-red-600 rounded-full';
-                    inboxLink.appendChild(redDot);
-                }
-            }
-
-            // Function to remove/hide red dot
-            function hideUnreadDot() {
-                const redDot = document.getElementById('unread-dot');
-                if (redDot) {
-                    redDot.remove();
-                }
-            }
-
-            // Listen for new messages
-            channel.bind('new.message', function(data) {
-                console.log('New message received:', data);
-                showUnreadDot();
-                
-                // Show notification
-                if ('Notification' in window && Notification.permission === 'granted') {
-                    new Notification('New mail From ' + data.sender.username);
-                }
-            });
-
-            // Listen for subscription succeeded
-            channel.bind('pusher:subscription_succeeded', () => {
-                console.log('Successfully subscribed to channel');
-            });
-
-            // Listen for subscription error
-            channel.bind('pusher:subscription_error', error => {
-                console.error('Subscription error:', error);
-            });
-
-            // Check unread messages periodically (as backup)
-            function checkUnreadMessages() {
-                fetch('/api/unread-count')
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.count > 0) {
-                            showUnreadDot();
-                        } else {
-                            hideUnreadDot();
-                        }
-                    })
-                    .catch(error => console.error('Error checking unread messages:', error));
-            }
-
-            // Check unread messages every 30 seconds as a fallback
-            setInterval(checkUnreadMessages, 30000);
-
-            // Initial check for unread messages
-            checkUnreadMessages();
-
-            // Request notification permission if not granted
-            if ('Notification' in window && Notification.permission !== 'granted') {
-                Notification.requestPermission();
-            }
+            // Remove the periodic check since we're using real-time updates now
+            // The real-time events will handle all updates
         });
     </script>
     <script>

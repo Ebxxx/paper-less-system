@@ -27,11 +27,19 @@ class MessageRead implements ShouldBroadcast
         return new PrivateChannel('messages.' . $this->message->from_user_id);
     }
 
+    public function broadcastAs()
+    {
+        return 'message.read';
+    }
+
     public function broadcastWith()
     {
         return [
             'message_id' => $this->message->id,
-            'read_at' => $this->message->read_at
+            'read_at' => $this->message->read_at->format('Y-m-d H:i:s'),
+            'parent_id' => $this->message->parent_id,
+            'unread_count' => auth()->user()->unreadMessages()->count(),
+            'inbox_count' => auth()->user()->receivedMessages()->where('is_archived', false)->count()
         ];
     }
 } 
