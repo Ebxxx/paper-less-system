@@ -83,3 +83,20 @@ mark:hover {
 .text-gray-700 {
     @apply text-sm pl-6;  /* Added padding-left to match the right padding */
 }
+
+/* Custom Button Styles */
+.action-button {
+    @apply inline-flex items-center justify-center;
+    @apply px-6 py-2;
+    @apply text-sm font-medium;
+    @apply bg-white;
+    @apply border border-gray-200;
+    @apply rounded-lg;
+    @apply shadow-sm;
+    @apply transition-all duration-200;
+    @apply hover:bg-gray-50 hover:shadow-md;
+}
+
+.action-button i {
+    @apply mr-3;
+}

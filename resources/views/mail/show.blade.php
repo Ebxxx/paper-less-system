@@ -143,11 +143,35 @@
 
                     <!-- Message Content -->
                     <div class="prose max-w-none mb-8">
-                        {!! nl2br(e($message->content)) !!}
+                    <h3 class="text-lg font-medium mb-4">New Message</h3>
+                        <div class="border-l-4 border-gray-200 pl-4">
+                            <div class="ml-11">  <!-- Content wrapper with consistent indentation -->
+                                <!-- Message Text -->
+                                <div class="whitespace-pre-line mb-4">
+                                    {!! nl2br(e($message->content)) !!}
+                                </div>
+
+                                <!-- Attachments -->
+                                @if($message->attachments->count() > 0)
+                                    <div class="mt-3">
+                                        <div class="text-sm text-gray-500">Attachments:</div>
+                                        <div class="flex flex-wrap gap-2 mt-1">
+                                            @foreach($message->attachments as $attachment)
+                                                <a href="{{ route('mail.download', $attachment) }}" 
+                                                   class="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50">
+                                                    <i class="fas fa-paperclip mr-1"></i>
+                                                    {{ $attachment->original_filename }}
+                                                </a>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Attachments Section - Moved here -->
-                    @if(optional($message->attachments)->count() > 0)
+                    <!-- @if(optional($message->attachments)->count() > 0)
                         <div class="mb-8 border-t pt-4">
                             <h3 class="text-lg font-medium mb-2">Attachments</h3>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -166,26 +190,24 @@
                                 @endforeach
                             </div>
                         </div>
-                    @endif
+                    @endif -->
 
                     <!-- Add conversation thread section -->
                     @if($message->replies->count() > 0 || $message->parent_id)
                         <div class="mt-8 border-t pt-6">
-                            <h3 class="text-lg font-medium mb-4">Conversation History</h3>
+                            <h3 class="text-lg font-medium mb-4">Conversation</h3>
                             
                             <div class="space-y-6">
                                 @php
-                                    // Get the root message (first message in the thread)
                                     $rootMessage = $message->parent_id ? $message->thread() : $message;
-                                    
-                                    // Get all messages in the conversation including the root message
                                     $conversationMessages = collect([$rootMessage])
                                         ->merge($rootMessage->getAllReplies())
                                         ->sortBy('created_at');
                                 @endphp
 
                                 @foreach($conversationMessages as $threadMessage)
-                                    <div class="border-l-4 {{ $threadMessage->id === $message->id ? 'border-blue-500' : 'border-gray-200' }} pl-4">
+                                    <div class="border-l-4 {{ $threadMessage->id === $message->id ? 'border-blue-500' : 'border-gray-200' }} pl-4"
+                                         data-message-id="{{ $threadMessage->id }}">
                                         <div class="flex justify-between items-start mb-2">
                                             <div class="flex items-start space-x-3">
                                                 <!-- User Avatar -->
@@ -200,7 +222,36 @@
                                                         <span class="font-medium">{{ $threadMessage->recipient->username }}</span>
                                                     </div>
                                                     <span class="text-gray-500 text-sm">{{ $threadMessage->created_at->format('M d, Y h:i A') }}</span>
+                                                    
+                                                    <!-- Message Marks -->
+                                                    @if($threadMessage->mark)
+                                                        <div class="flex items-center space-x-2 mt-1">
+                                                            @if($threadMessage->mark->is_important)
+                                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                                    <i class="fas fa-exclamation-circle mr-1"></i>Important
+                                                                </span>
+                                                            @endif
+                                                            @if($threadMessage->mark->is_urgent)
+                                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                                                                    <i class="fas fa-exclamation-triangle mr-1"></i>Urgent
+                                                                </span>
+                                                            @endif
+                                                            @if($threadMessage->mark->deadline)
+                                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium 
+                                                                    {{ now() > $threadMessage->mark->deadline ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' }}">
+                                                                    <i class="fas fa-clock mr-1"></i>
+                                                                    Deadline: {{ $threadMessage->mark->deadline->format('M d, Y h:i A') }}
+                                                                </span>
+                                                            @endif
+                                                        </div>
+                                                    @endif
                                                 </div>
+                                            </div>
+                                            <div class="read-status text-right">
+                                                @if($threadMessage->read_at && $threadMessage->from_user_id === auth()->id())
+                                                    <i class="fas fa-check-double text-blue-500"></i>
+                                                    <span class="text-xs text-gray-500">Read {{ $threadMessage->read_at->format('M d, Y h:i A') }}</span>
+                                                @endif
                                             </div>
                                         </div>
                                         
@@ -234,13 +285,18 @@
                     <div class="mt-6 flex space-x-4">
                         <button type="button"
                            onclick="toggleReplyForm()"
-                           class="inline-flex items-center px-2 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-                            <i class="fas fa-reply mr-2"></i> Reply
+                           class="action-button">
+                            <i class="fas fa-reply"></i><span class="ml-3">Reply</span>
+                        </button>
+                        <button type="button"
+                           onclick="toggleForwardForm()"
+                           class="action-button">
+                            <i class="fas fa-forward"></i><span class="ml-3">Forward</span>
                         </button>
                     </div>
 
                     <!-- Add this temporarily for debugging -->
-                    <div class="text-sm text-gray-500">Debug: Message ID: {{ $message->id }}</div>
+                    <!-- <div class="text-sm text-gray-500">Debug: Message ID: {{ $message->id }}</div> -->
 
                     <!-- Inline Reply Form -->
                     <div id="replyForm" class="mt-6 border-t pt-6 hidden">
@@ -248,8 +304,8 @@
                             @csrf
                             <input type="hidden" name="parent_id" value="{{ $message->id }}">
                             <!-- Add this temporarily for debugging -->
-                            <div class="text-sm text-gray-500">Debug: Parent ID being sent: {{ $message->id }}</div>
-                            
+                            <!-- <div class="text-sm text-gray-500">Debug: Parent ID being sent: {{ $message->id }}</div>
+                             -->
                             <input type="hidden" name="to_user_ids[]" value="{{ $message->sender->id }}">
                             <input type="hidden" name="subject" value="{{ str_starts_with($message->subject, 'Re:') ? $message->subject : 'Re: ' . $message->subject }}">
 
@@ -300,8 +356,8 @@
                             <!-- Action Buttons Bar -->
                             <div class="flex items-center space-x-2">
                                 <button type="submit" 
-                                    class="inline-flex items-center px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">
-                                    Send Reply
+                                    class="action-button">
+                                    <i class="fas fa-paper-plane"></i><span class="ml-3">Send Reply</span>
                                 </button>
 
                                 <!-- Attachment Button -->
@@ -324,10 +380,150 @@
                         </form>
                     </div>
 
+                    <!-- Forward Form -->
+                    <div id="forwardForm" class="mt-6 border-t pt-6 hidden">
+                        <form action="{{ route('mail.send') }}" method="POST" class="space-y-4" enctype="multipart/form-data">
+                            @csrf
+                            <!-- Add this temporarily for debugging -->
+                            <!-- <div class="text-sm text-gray-500">Debug: Forwarding Message ID: {{ $message->id }}</div> -->
+                            
+                            <!-- Recipients Selection -->
+                            <div class="relative">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">To:</label>
+                                <div class="relative">
+                                    <button type="button" 
+                                            onclick="toggleForwardRecipientDropdown()"
+                                            class="w-full bg-white border border-gray-300 rounded-md py-2 px-3 text-left cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                                        <span id="forwardSelectedRecipientsText">Select Recipients</span>
+                                        <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                                            <i class="fas fa-chevron-down text-gray-400"></i>
+                                        </span>
+                                    </button>
+
+                                    <!-- Dropdown Menu -->
+                                    <div id="forwardRecipientDropdown" 
+                                         class="hidden absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                                        <div class="sticky top-0 bg-white p-2 border-b">
+                                            <input type="text" 
+                                                   id="forwardRecipientSearch" 
+                                                   placeholder="Search recipients..." 
+                                                   class="w-full border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                        </div>
+                                        @foreach(\App\Models\User::where('id', '!=', auth()->id())->where('role', '!=', 'admin')->get() as $user)
+                                            <div class="recipient-option px-4 py-2 hover:bg-gray-100">
+                                                <label class="flex items-center space-x-3 cursor-pointer">
+                                                    <input type="checkbox" 
+                                                           name="to_user_ids[]" 
+                                                           value="{{ $user->id }}" 
+                                                           class="forward-recipient-checkbox rounded border-gray-300 text-blue-600">
+                                                    <div>
+                                                        <div class="text-sm font-medium text-gray-700">{{ $user->username }}</div>
+                                                        <div class="text-xs text-gray-500">{{ $user->email }}</div>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                                <div class="mt-2 text-sm text-gray-500">
+                                    Selected: <span id="forward-selected-count">0</span> recipients
+                                </div>
+                            </div>
+
+                            <!-- Subject -->
+                            <div>
+                                <label for="forward_subject" class="block text-sm font-medium text-gray-700">Subject:</label>
+                                <input type="text" name="subject" id="forward_subject" required
+                                    value="Fwd: {{ $message->subject }}"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            </div>
+
+                            <!-- Message Content -->
+                            <div>
+                                <label for="forward_content" class="block text-sm font-medium text-gray-700">Message:</label>
+                                <textarea name="content" id="forward_content" rows="6" required
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                >
+
+---------- Forwarded message ----------
+From: {{ $message->sender->username }} <{{ $message->sender->email }}>
+Date: {{ $message->created_at->format('D, M d, Y h:i A') }}
+Subject: {{ $message->subject }}
+To: {{ $message->recipient->username }} <{{ $message->recipient->email }}>
+
+{{ $message->content }}</textarea>
+                            </div>
+
+                            <!-- Message Options -->
+                            <div class="space-y-4">
+                                <div class="flex items-center space-x-6">
+                                    <!-- Important Mark -->
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" name="is_important" value="1"
+                                            class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                        <span class="ml-2 text-sm text-gray-700">
+                                            <i class="fas fa-exclamation-circle text-yellow-500 mr-1"></i> Mark as Important
+                                        </span>
+                                    </label>
+
+                                    <!-- Urgent Mark -->
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" name="is_urgent" value="1"
+                                            class="rounded border-gray-300 text-red-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
+                                        <span class="ml-2 text-sm text-gray-700">
+                                            <i class="fas fa-exclamation-triangle text-red-500 mr-1"></i> Mark as Urgent
+                                        </span>
+                                    </label>
+                                </div>
+
+                                <!-- Deadline -->
+                                <div class="flex items-center space-x-4">
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" id="forward_has_deadline"
+                                            class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                        <span class="ml-2 text-sm text-gray-700">Set Deadline</span>
+                                    </label>
+                                    
+                                    <div id="forward_deadline_container" class="hidden">
+                                        <input type="datetime-local" name="deadline" id="forward_deadline"
+                                            class="mt-1 block rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons Bar -->
+                            <div class="flex items-center space-x-2">
+                                <button type="submit" 
+                                    class="action-button">
+                                    <i class="fas fa-paper-plane"></i><span class="ml-3">Forward Message</span>
+                                </button>
+
+                                <button type="button" 
+                                    onclick="toggleForwardForm()"
+                                    class="inline-flex items-center px-2 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded">
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
                     <script>
                     function toggleReplyForm() {
                         const replyForm = document.getElementById('replyForm');
+                        const forwardForm = document.getElementById('forwardForm');
                         replyForm.classList.toggle('hidden');
+                        if (!forwardForm.classList.contains('hidden')) {
+                            forwardForm.classList.add('hidden');
+                        }
+                    }
+
+                    function toggleForwardForm() {
+                        const forwardForm = document.getElementById('forwardForm');
+                        const replyForm = document.getElementById('replyForm');
+                        forwardForm.classList.toggle('hidden');
+                        if (!replyForm.classList.contains('hidden')) {
+                            replyForm.classList.add('hidden');
+                        }
                     }
 
                     // Handle file selection display
@@ -373,6 +569,76 @@
                         const fileItem = button.closest('div');
                         fileItem.remove();
                     }
+
+                    function toggleForwardRecipientDropdown() {
+                        const dropdown = document.getElementById('forwardRecipientDropdown');
+                        dropdown.classList.toggle('hidden');
+                    }
+
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const checkboxes = document.querySelectorAll('.forward-recipient-checkbox');
+                        const selectedCount = document.getElementById('forward-selected-count');
+                        const selectedRecipientsText = document.getElementById('forwardSelectedRecipientsText');
+                        const searchInput = document.getElementById('forwardRecipientSearch');
+                        
+                        // Update selected recipients text and count
+                        function updateSelectedRecipients() {
+                            const checkedBoxes = document.querySelectorAll('.forward-recipient-checkbox:checked');
+                            const count = checkedBoxes.length;
+                            selectedCount.textContent = count;
+                            
+                            if (count === 0) {
+                                selectedRecipientsText.textContent = 'Select Recipients';
+                            } else {
+                                const names = Array.from(checkedBoxes).map(cb => 
+                                    cb.closest('.recipient-option').querySelector('.font-medium').textContent
+                                );
+                                selectedRecipientsText.textContent = names.join(', ');
+                            }
+                        }
+
+                        // Handle checkbox changes
+                        checkboxes.forEach(checkbox => {
+                            checkbox.addEventListener('change', updateSelectedRecipients);
+                        });
+
+                        // Search functionality
+                        searchInput.addEventListener('input', function(e) {
+                            const searchTerm = e.target.value.toLowerCase();
+                            document.querySelectorAll('.recipient-option').forEach(option => {
+                                const username = option.querySelector('.font-medium').textContent.toLowerCase();
+                                const email = option.querySelector('.text-gray-500').textContent.toLowerCase();
+                                const matches = username.includes(searchTerm) || email.includes(searchTerm);
+                                option.style.display = matches ? 'block' : 'none';
+                            });
+                        });
+
+                        // Close dropdown when clicking outside
+                        document.addEventListener('click', function(e) {
+                            const dropdown = document.getElementById('forwardRecipientDropdown');
+                            const button = e.target.closest('button');
+                            const dropdownContent = e.target.closest('#forwardRecipientDropdown');
+                            
+                            if (!button && !dropdownContent && !dropdown.classList.contains('hidden')) {
+                                dropdown.classList.add('hidden');
+                            }
+                        });
+                    });
+
+                    // Handle forward deadline checkbox
+                    document.getElementById('forward_has_deadline').addEventListener('change', function() {
+                        const deadlineContainer = document.getElementById('forward_deadline_container');
+                        const deadlineInput = document.getElementById('forward_deadline');
+                        
+                        deadlineContainer.classList.toggle('hidden');
+                        if (this.checked) {
+                            const now = new Date();
+                            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                            deadlineInput.min = now.toISOString().slice(0, 16);
+                        } else {
+                            deadlineInput.value = '';
+                        }
+                    });
                     </script>
                 </div>
             </div>
