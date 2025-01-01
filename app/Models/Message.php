@@ -81,4 +81,9 @@ class Message extends Model
             ->get()
             ->concat($this->replies()->get()->flatMap->getAllReplies());
     }
+
+    public function marks(): HasMany
+    {
+        return $this->hasMany(MessageMark::class);
+    }
 }

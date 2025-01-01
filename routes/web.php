@@ -61,6 +61,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
     Route::get('/admin/mail/messages', function () {
         return view('admin.mail.message'); })->name('admin.mail.message');
+
+    Route::get('/mail/monitoring', [AdminController::class, 'mailMonitoring'])->name('admin.mail.monitoring');
+    Route::get('/mail/message/{message}', [AdminController::class, 'getMessage'])->name('admin.mail.getMessage');
+    
+    Route::get('/mail/attachment/{attachment}/download', [AdminController::class, 'downloadAttachment'])
+        ->name('admin.mail.download');
 });
 
     // Superadmin Routes

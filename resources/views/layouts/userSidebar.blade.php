@@ -15,29 +15,30 @@
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <span class="logo">{{ auth()->user()->username }}</span>
+                <h3 class="text-white">
+                    <span class="logo">
+                        <span class="logo-edu">Edu</span><span class="logo-mail">MAIL</span>
+                    </span>
+                </h3>
             </div>
             <nav class="nav-menu">
                 <a href="{{ route('mail.compose') }}"
-                   class="nav-item {{ request()->routeIs('mail.compose') ? 'active' : '' }}">
-                    <i class="fas fa-paper-plane mr-2"></i> Compose
+                   class="nav-item compose-btn">
+                    <div class="flex items-center">
+                        <i class="fas fa-pen mr-2"></i> Compose
+                    </div>
                 </a>
                 <a href="{{ route('mail.inbox') }}" 
                     class="nav-item {{ request()->routeIs('mail.inbox') ? 'active' : '' }} relative"
                     id="inbox-link">
-                        <div class="flex justify-between items-center w-full">
-                            <div class="flex items-center">
-                                <i class="fa fa-inbox mr-2"></i> Inbox
-                            </div>
-                            <div class="flex items-center">
-                                <span class="text-sm  text-gray-200 rounded-full px-2 py-0.5 ml-2">
-                                    {{ auth()->user()->receivedMessages()->where('is_archived', false)->count() }}
-                                </span>
-                                @if(auth()->user()->unreadMessages()->count() > 0)
-                                    <span class="absolute top-0 right-0 transform translate-x-1 -translate-y-1 h-3 w-3 bg-red-600 rounded-full" id="unread-dot"></span>
-                                @endif
-                            </div>
+                    <div class="flex justify-between items-center w-full">
+                        <div class="flex items-center">
+                            <i class="fa fa-inbox mr-3"></i> Inbox
                         </div>
+                        <span class="text-sm">
+                            {{ auth()->user()->receivedMessages()->where('is_archived', false)->count() }}
+                        </span>
+                    </div>
                 </a>
                 <a href="{{ route('mail.starred') }}"
                    class="nav-item {{ request()->routeIs('mail.starred') ? 'active' : '' }}">

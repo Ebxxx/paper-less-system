@@ -16,7 +16,14 @@
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <a href="{{ route('admin.AdminDashboard') }}" class="logo">LOGO HERE</a>
+                <div class="text-center">
+                    <h3 class="text-white">
+                        <span class="logo">
+                            <span class="logo-edu">Edu</span><span class="logo-mail">MAIL</span>
+                        </span>
+                    </h3>
+                    <div class="admin-panel-text">Admin Panel</div>
+                </div>
             </div>
             <nav class="nav-menu">
                 <a href="{{ route('admin.AdminDashboard') }}" 
@@ -27,9 +34,9 @@
                    class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                     <i class="fas fa-users mr-2"></i> Users
                 </a>
-                <a href="{{ route('admin.mail.message') }}"
-                   class="nav-item {{ request()->routeIs('') ? 'active' : '' }}">
-                    <i class="fas fa-envelope mr-2"></i> Mail Moderation
+                <a href="{{ route('admin.mail.monitoring') }}"
+                   class="nav-item {{ request()->routeIs('admin.mail.monitoring') ? 'active' : '' }}">
+                    <i class="fas fa-envelope mr-2"></i> Mail Monitoring
                 </a>
                 <form method="POST" action="{{ route('logout') }}" class="mt-auto">
                     @csrf

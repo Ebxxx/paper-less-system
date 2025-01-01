@@ -10,9 +10,8 @@
             <div class="grid grid-cols-4 gap-6">
                 <!-- Left Section (3 columns) -->
                 <div class="col-span-3">
-                          
                     <!-- User Growth Chart Section -->
-                    <div class="bg-white rounded-lg p-6 border shadow-lg">
+                    <div class="bg-white rounded-lg p-6 border shadow-lg mb-6">
                         <h2 class="font-semibold text-3xl text-gray-800 leading-tight mb-4">
                             {{ __('User Growth') }}
                         </h2>
@@ -27,6 +26,14 @@
                             </select>
                         </form>
                         <canvas id="userGrowthChart" class="w-full" style="width: 80%; height: 300px;"></canvas>
+                    </div>
+
+                    <!-- Message Statistics Chart Section -->
+                    <div class="bg-white rounded-lg p-6 border shadow-lg">
+                        <h2 class="font-semibold text-3xl text-gray-800 leading-tight mb-4">
+                            {{ __('Message Statistics') }}
+                        </h2>
+                        <canvas id="messageStatsChart" class="w-full" style="width: 80%; height: 300px;"></canvas>
                     </div>
                 </div>
 
@@ -47,21 +54,17 @@
                         </div>
                     </div>
 
-                    <!-- Total Users Info -->
+                    <!-- User Type Distribution -->
                     <div class="bg-white rounded-lg p-6 border shadow-lg">
-                   
-                        
-                        <div class="mb-4 text-start">
-                            
-                            <canvas id="userTypeChart" style="width: 100%; height: 300px;"></canvas>
-                        </div>
+                        <h3 class="text-lg font-semibold mb-4">User Distribution</h3>
+                        <canvas id="userTypeChart" style="width: 100%; height: 300px;"></canvas>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Include Chart.js from CDN -->
+    <!-- Include Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <!-- Pass data to JavaScript -->
@@ -69,16 +72,16 @@
         const adminCount = {{ $adminCount }};
         const regularUserCount = {{ $regularUserCount }};
         const selectedYear = {{ $selectedYear }};
-        const userGrowthLabels = [
-            @foreach($userGrowthData as $data)
-                '{{ $data['month'] }}',
-            @endforeach
-        ];
-        const userGrowthData = [
-            @foreach($userGrowthData as $data)
-                {{ $data['users'] }},
-            @endforeach
-        ];
+        const userGrowthLabels = [@foreach($userGrowthData as $data)'{{ $data['month'] }}',@endforeach];
+        const userGrowthData = [@foreach($userGrowthData as $data){{ $data['users'] }},@endforeach];
+        const messageStats = {
+            total: {{ $totalMessages }},
+            read: {{ $readMessages }},
+            unread: {{ $unreadMessages }},
+            urgent: {{ $urgentMessages }},
+            important: {{ $importantMessages }},
+            attachments: {{ $totalAttachments }}
+        };
     </script>
     
     <!-- Include the custom charts script -->
