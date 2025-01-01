@@ -72,6 +72,8 @@ class AdminController extends Controller
         $importantMessages = Message::whereHas('marks', function($query) {
             $query->where('is_important', true);
         })->count();
+        
+        // Add total attachments count
         $totalAttachments = MessageAttachment::count();
 
         return view('admin.AdminDashboard', compact(
@@ -86,7 +88,8 @@ class AdminController extends Controller
             'readMessages',
             'unreadMessages',
             'urgentMessages',
-            'importantMessages'
+            'importantMessages',
+            'totalAttachments'
         ));
     }
     public function users()
