@@ -1,4 +1,8 @@
 <x-app-layout>
+    <div id="emojiPicker" class="hidden fixed z-50 bg-white rounded-lg shadow-xl" style="width: 352px;">
+        <emoji-picker></emoji-picker>
+    </div>
+    
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -60,8 +64,13 @@
 
                         <!-- Message Content -->
                         <div>
-                            <textarea name="content" id="content" rows="10" required
-                                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                            <textarea name="content" 
+                                      id="content" 
+                                      rows="10" 
+                                      required
+                                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                      placeholder="Write your message..."></textarea>
+                            </textarea>
                         </div>
 
                         <!-- Add this after the content textarea and before the action buttons -->
@@ -125,24 +134,26 @@
                             </label>
 
                             <!-- Format Buttons -->
-                            <button type="button" class="p-1 text-sm text-gray-600 hover:bg-gray-100 rounded" title="Bold">
-                                <i class="fas fa-bold"></i>
-                            </button>
-                            <button type="button" class="p-1 text-sm text-gray-600 hover:bg-gray-100 rounded" title="Italic">
-                                <i class="fas fa-italic"></i>
-                            </button>
-                            <button type="button" class="p-1 text-sm text-gray-600 hover:bg-gray-100 rounded" title="Underline">
-                                <i class="fas fa-underline"></i>
-                            </button>
-                            <button type="button" class="p-1 text-sm text-gray-600 hover:bg-gray-100 rounded" title="Link">
-                                <i class="fas fa-link"></i>
-                            </button>
-                            <button type="button" class="p-1 text-sm text-gray-600 hover:bg-gray-100 rounded" title="Emoji">
-                                <i class="far fa-smile"></i>
-                            </button>
+                            <div class="flex items-center space-x-1">
+                                <button type="button" onclick="formatText('bold')" class="format-button p-2" title="Bold">
+                                    <i class="fas fa-bold"></i>
+                                </button>
+                                <button type="button" onclick="formatText('italic')" class="format-button p-2" title="Italic">
+                                    <i class="fas fa-italic"></i>
+                                </button>
+                                <button type="button" onclick="formatText('underline')" class="format-button p-2" title="Underline">
+                                    <i class="fas fa-underline"></i>
+                                </button>
+                                <button type="button" onclick="insertLink()" class="format-button p-2" title="Link">
+                                    <i class="fas fa-link"></i>
+                                </button>
+                                <button type="button" onclick="toggleEmojiPicker(event)" class="format-button p-2" title="Emoji">
+                                    <i class="far fa-smile"></i>
+                                </button>
+                            </div>
 
                             <!-- More Options -->
-                            <div class="relative ml-auto">
+                            <!-- <div class="relative ml-auto">
                                 <button type="button" 
                                         class="p-1 text-sm text-gray-600 hover:bg-gray-100 rounded"
                                         onclick="toggleMoreOptions()">
@@ -159,7 +170,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
 
                         <!-- Selected Files Display -->
                         <div id="selected-files" class="mt-2 space-y-2"></div>
@@ -330,6 +341,152 @@
             deadlineInput.value = '';
         }
     });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Debug logging
+        console.log('DOM Content Loaded');
+        
+        // Initialize emoji picker
+        const picker = document.querySelector('emoji-picker');
+        if (picker) {
+            console.log('Emoji picker found');
+            picker.addEventListener('emoji-click', event => {
+                console.log('Emoji clicked:', event.detail);
+                const emoji = event.detail.unicode;
+                insertEmoji(emoji);
+                document.getElementById('emojiPicker').classList.add('hidden');
+            });
+        } else {
+            console.error('Emoji picker not found');
+        }
+
+        // Update toggleEmojiPicker function
+        window.toggleEmojiPicker = function(event) {
+            event.preventDefault();
+            const picker = document.getElementById('emojiPicker');
+            const button = event.target.closest('button');
+            
+            if (picker.classList.contains('hidden')) {
+                // Get button position
+                const rect = button.getBoundingClientRect();
+                const pickerHeight = 435; // Fixed height of the emoji picker
+                
+                // Calculate if there's enough space above
+                const spaceAbove = rect.top;
+                const spaceBelow = window.innerHeight - rect.bottom;
+                
+                // Position the picker
+                picker.style.position = 'fixed';
+                if (spaceAbove >= pickerHeight || spaceAbove > spaceBelow) {
+                    // Position above if there's enough space or more space than below
+                    picker.style.top = `${rect.top - pickerHeight - 8}px`;
+                    picker.style.bottom = 'auto';
+                } else {
+                    // Position below if there's not enough space above
+                    picker.style.top = 'auto';
+                    picker.style.bottom = `${window.innerHeight - rect.top + 8}px`;
+                }
+                picker.style.left = `${rect.left}px`;
+                
+                // Show the picker with animation
+                picker.classList.remove('hidden');
+                picker.classList.add('emoji-picker-dropdown');
+                
+                // Focus the search input if it exists
+                const searchInput = picker.querySelector('input[type="text"]');
+                if (searchInput) {
+                    setTimeout(() => searchInput.focus(), 100);
+                }
+            } else {
+                picker.classList.add('hidden');
+                picker.classList.remove('emoji-picker-dropdown');
+            }
+        };
+
+        // Initialize formatting functionality
+        const textarea = document.getElementById('content');
+        if (!textarea) {
+            console.error('Content textarea not found!');
+            return;
+        }
+
+        window.formatText = function(command) {
+            const textarea = document.getElementById('content');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const selectedText = textarea.value.substring(start, end);
+            let formattedText = '';
+
+            switch(command) {
+                case 'bold':
+                    if (selectedText) {
+                        formattedText = `**${selectedText}**`;
+                        textarea.value = textarea.value.substring(0, start) + formattedText + textarea.value.substring(end);
+                        // Place cursor after the formatted text
+                        textarea.setSelectionRange(start + formattedText.length, start + formattedText.length);
+                    } else {
+                        // If no text is selected, just insert the markers and place cursor between them
+                        formattedText = '**';
+                        textarea.value = textarea.value.substring(0, start) + '****' + textarea.value.substring(end);
+                        // Place cursor between the ** markers
+                        textarea.setSelectionRange(start + 2, start + 2);
+                    }
+                    break;
+                case 'italic':
+                    formattedText = selectedText ? `*${selectedText}*` : '*italic text*';
+                    wrapperLength = 1;
+                    cursorOffset = selectedText ? 1 : -1;
+                    break;
+                case 'underline':
+                    formattedText = selectedText ? `__${selectedText}__` : '__underlined text__';
+                    cursorOffset = selectedText ? 2 : -2;
+                    break;
+            }
+            
+            textarea.focus();
+        };
+
+        window.insertLink = function() {
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const selectedText = textarea.value.substring(start, end);
+            
+            const url = prompt('Enter URL:', 'https://');
+            if (url) {
+                const linkText = selectedText || 'link text';
+                const markdown = `[${linkText}](${url})`;
+                
+                textarea.value = textarea.value.substring(0, start) + markdown + textarea.value.substring(end);
+                textarea.focus();
+                
+                const newPosition = start + markdown.length;
+                textarea.setSelectionRange(newPosition, newPosition);
+            }
+        };
+
+        window.insertEmoji = function(emoji) {
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            
+            textarea.value = textarea.value.substring(0, start) + emoji + textarea.value.substring(end);
+            textarea.focus();
+            
+            const newPosition = start + emoji.length;
+            textarea.setSelectionRange(newPosition, newPosition);
+        };
+
+        // Close emoji picker when clicking outside
+        document.addEventListener('click', function(event) {
+            const picker = document.getElementById('emojiPicker');
+            const emojiButton = event.target.closest('[title="Emoji"]');
+            const pickerContent = event.target.closest('#emojiPicker');
+            
+            if (!emojiButton && !pickerContent && !picker.classList.contains('hidden')) {
+                picker.classList.add('hidden');
+                picker.classList.remove('emoji-picker-dropdown');
+            }
+        });
+    });
     </script>
 
     @push('styles')
@@ -341,6 +498,11 @@
 
     .recipient-checkbox {
         cursor: pointer;
+    }
+
+    emoji-picker {
+        width: 100%;
+        height: 400px;
     }
     </style>
     @endpush

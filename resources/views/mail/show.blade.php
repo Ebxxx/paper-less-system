@@ -440,7 +440,6 @@
 
                             <!-- Message Content -->
                             <div>
-                                <label for="forward_content" class="block text-sm font-medium text-gray-700">Message:</label>
                                 <textarea name="content" id="forward_content" rows="6" required
                                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                 >
