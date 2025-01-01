@@ -32,11 +32,11 @@ body {
 }
 
 .sidebar-header {
-    padding: 1.5rem;
+    padding: 1.3rem;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid #e5e7eb;
+    justify-content: left;
+    /* border-bottom: 1px solid rgba(255, 255, 255, 0.1); */
 }
 
 .user-sidebar-header {
@@ -48,10 +48,32 @@ body {
 }
 
 .logo {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: white; /* Changed logo color to white for better contrast */
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: white;
     text-decoration: none;
+    display: inline-block;
+}
+
+.logo-edu {
+    color: #4285f4; /* Google blue */
+    font-weight: 900;
+}
+
+.logo-mail {
+    font-style: italic;
+    letter-spacing: -0.5px;
+    font-weight: 800;
+}
+
+.admin-panel-text {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+    margin-top: 0.3rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 500;
 }
 
 .nav-menu {
