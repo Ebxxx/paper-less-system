@@ -77,7 +77,7 @@
                                    class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500"
                                    placeholder="Search in {{ request()->segment(2) ?? 'messages' }}..."
                                    autocomplete="off">
-                            <div class="absolute left-3 top-2.5 text-gray-400">
+                            <div class="absolute left-2 top-2 text-gray-400">
                                 <i class="fas fa-search"></i>
                             </div>
                             @if(request('search'))

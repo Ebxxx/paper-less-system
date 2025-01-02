@@ -190,3 +190,167 @@ emoji-picker::-webkit-scrollbar-thumb {
 emoji-picker::-webkit-scrollbar-thumb:hover {
     background: #666;
 }
+
+/* Profile Page Styles */
+.profile-container {
+    @apply bg-gray-100 p-8;
+}
+
+/* Profile Card Styles */
+.profile-card {
+    @apply bg-white rounded-lg shadow-sm overflow-hidden;
+}
+
+/* Profile Sidebar Styles */
+.profile-sidebar {
+    @apply w-1/4 p-6 border-r border-gray-200;
+}
+
+.profile-avatar {
+    @apply w-24 h-24 mx-auto rounded-full bg-gray-200 flex items-center justify-center mb-4;
+}
+
+.profile-info {
+    @apply text-center;
+}
+
+.profile-username {
+    @apply font-medium text-gray-800;
+}
+
+.profile-email {
+    @apply text-sm text-gray-600;
+}
+
+/* Form Styles */
+.form-container {
+    @apply bg-gray-50 p-6 rounded-lg;
+}
+
+.form-grid {
+    @apply grid gap-6;
+}
+
+.input-row {
+    @apply grid grid-cols-3 gap-4;
+}
+
+.input-group {
+    @apply flex flex-col;
+}
+
+.input-label {
+    @apply text-sm text-gray-600 mb-1;
+}
+
+.form-input {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-md;
+    @apply focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+}
+
+/* E-Signature Area */
+.signature-area {
+    @apply border-2 border-dashed border-gray-300 p-4 rounded-lg bg-white;
+    @apply flex items-center justify-center;
+    min-height: 120px;
+}
+
+.signature-placeholder {
+    @apply text-gray-500 text-center;
+}
+
+/* Password Change Section */
+.password-section {
+    @apply mt-6;
+}
+
+.password-title {
+    @apply text-blue-600 font-medium mb-4;
+}
+
+/* Button Styles */
+.btn-container {
+    @apply flex justify-end space-x-3 mt-6;
+}
+
+.btn-cancel {
+    @apply px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700;
+    @apply transition duration-150 ease-in-out;
+}
+
+.btn-update {
+    @apply px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700;
+    @apply transition duration-150 ease-in-out;
+}
+
+/* Form Layout Specific Styles */
+.form-section {
+    @apply space-y-6;
+}
+
+.form-row {
+    @apply grid grid-cols-2 gap-4;
+}
+
+/* Input Field Styles */
+input[type="text"],
+input[type="password"] {
+    @apply w-full px-3 py-2;
+    @apply border border-gray-300 rounded-md;
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+    @apply text-gray-700;
+}
+
+/* File Upload Button */
+/* input[type="file"] {
+    @apply mt-2 block w-full text-sm text-gray-500;
+    @apply file:mr-4 file:py-2 file:px-4;
+    @apply file:rounded-md file:border-0;
+    @apply file:text-sm file:font-semibold;
+    @apply file:bg-blue-50 file:text-blue-700;
+    @apply hover:file:bg-blue-100;
+} */
+
+/* Success Message Styles */
+.success-message {
+    @apply bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded;
+    @apply relative;
+}
+
+/* Error Message Styles */
+.error-message {
+    @apply bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded;
+    @apply relative;
+}
+
+/* Tab Styles */
+.tab-navigation {
+    @apply flex border-b border-gray-200;
+}
+
+.tab-button {
+    @apply px-4 py-2 text-sm font-medium;
+    @apply text-gray-500 hover:text-gray-700;
+    @apply focus:outline-none;
+}
+
+.tab-button.active {
+    @apply border-b-2 border-blue-500 text-blue-600;
+}
+
+/* Tab Content Transitions */
+[x-cloak] {
+    display: none !important;
+}
+
+.tab-content {
+    @apply transition-all duration-300;
+}
+
+.tab-content[x-show] {
+    @apply opacity-0;
+}
+
+.tab-content[x-show="true"] {
+    @apply opacity-100;
+}

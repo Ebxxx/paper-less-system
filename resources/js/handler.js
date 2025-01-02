@@ -3,10 +3,15 @@
     const message = urlParams.get('success') || urlParams.get('error');
     if (message) {
         const messageType = urlParams.get('success') ? 'alert-success' : 'alert-danger';
-        $('#message').text(message).addClass(messageType).show();
+        const messageDiv = document.getElementById('message');
+        if (messageDiv) {
+            messageDiv.textContent = message;
+            messageDiv.classList.add(messageType);
+            messageDiv.classList.remove('hidden');
 
-        // Hide the message after 5 seconds
-        setTimeout(function() {
-            $('#message').fadeOut('slow');
-        }, 3000); // 5000 milliseconds = 5 seconds
+            // Hide the message after 3 seconds
+            setTimeout(function() {
+                messageDiv.classList.add('hidden');
+            }, 3000);
+        }
     }
