@@ -87,6 +87,7 @@ class MessageController extends Controller
             'is_important' => 'sometimes|boolean',
             'is_urgent' => 'sometimes|boolean',
             'deadline' => 'nullable|date|after:now',
+            'pre_reply' => 'nullable|in:approved,rejected,thank_you',
             'attachments' => 'nullable|array',
             'attachments.*' => 'file|max:10240|mimes:pdf,doc,docx,txt,jpg,jpeg,png'
         ]);
@@ -98,7 +99,7 @@ class MessageController extends Controller
             try {
                 DB::beginTransaction();
 
-                // Create the message with parent_id
+                // Create the message
                 $message = Message::create([
                     'from_user_id' => auth()->id(),
                     'to_user_id' => $recipientId,
@@ -107,13 +108,22 @@ class MessageController extends Controller
                     'parent_id' => $request->input('parent_id'),
                 ]);
 
-                // Create message mark
-                if ($request->has('is_important') || $request->has('is_urgent') || $request->has('deadline')) {
+                // Create message mark with pre_reply
+                if ($request->has('pre_reply')) {
                     MessageMark::create([
                         'message_id' => $message->id,
                         'is_important' => $request->boolean('is_important', false),
                         'is_urgent' => $request->boolean('is_urgent', false),
-                        'deadline' => $request->filled('deadline') ? $request->deadline : null
+                        'deadline' => $request->filled('deadline') ? $request->deadline : null,
+                        'pre_reply' => $request->input('pre_reply'),
+                    ]);
+                } else {
+                    // Create regular message mark without pre_reply
+                    MessageMark::create([
+                        'message_id' => $message->id,
+                        'is_important' => $request->boolean('is_important', false),
+                        'is_urgent' => $request->boolean('is_urgent', false),
+                        'deadline' => $request->filled('deadline') ? $request->deadline : null,
                     ]);
                 }
 
@@ -144,6 +154,7 @@ class MessageController extends Controller
             } catch (\Exception $e) {
                 DB::rollBack();
                 \Log::error('Failed to send message: ' . $e->getMessage());
+                \Log::error('Stack trace: ' . $e->getTraceAsString());
                 $failCount++;
             }
         }
@@ -322,6 +333,7 @@ class MessageController extends Controller
             'is_important' => 'sometimes|boolean',
             'is_urgent' => 'sometimes|boolean',
             'deadline' => 'nullable|date|after:now',
+            'pre_reply' => 'nullable|in:approved,rejected,thank_you',
             'attachments' => 'nullable|array',
             'attachments.*' => 'file|max:10240|mimes:pdf,doc,docx,txt,jpg,jpeg,png'
         ]);
@@ -329,7 +341,7 @@ class MessageController extends Controller
         try {
             DB::beginTransaction();
 
-            // Create the message with parent_id
+            // Create the message
             $message = Message::create([
                 'from_user_id' => auth()->id(),
                 'to_user_id' => $validated['to_user_ids'][0],
@@ -338,12 +350,13 @@ class MessageController extends Controller
                 'parent_id' => $request->input('parent_id'),
             ]);
 
-            // Create message mark
-            $mark = MessageMark::create([
+            // Create message mark with pre_reply
+            MessageMark::create([
                 'message_id' => $message->id,
                 'is_important' => $request->boolean('is_important', false),
                 'is_urgent' => $request->boolean('is_urgent', false),
-                'deadline' => $request->filled('deadline') ? $request->deadline : null
+                'deadline' => $request->filled('deadline') ? $request->deadline : null,
+                'pre_reply' => $request->input('pre_reply'),
             ]);
 
             // Handle attachments if present

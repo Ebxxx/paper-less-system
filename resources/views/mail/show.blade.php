@@ -309,9 +309,32 @@
                             <input type="hidden" name="to_user_ids[]" value="{{ $message->sender->id }}">
                             <input type="hidden" name="subject" value="{{ str_starts_with($message->subject, 'Re:') ? $message->subject : 'Re: ' . $message->subject }}">
 
+                            <!-- Pre-reply Options -->
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Quick Reply:</label>
+                                <div class="flex space-x-4">
+                                    <button type="button" 
+                                            onclick="setPreReply('approved')"
+                                            class="pre-reply-btn px-4 py-2 text-sm rounded-md border">
+                                        <i class="fas fa-check text-green-500 mr-2"></i>Approve
+                                    </button>
+                                    <button type="button" 
+                                            onclick="setPreReply('rejected')"
+                                            class="pre-reply-btn px-4 py-2 text-sm rounded-md border">
+                                        <i class="fas fa-times text-red-500 mr-2"></i>Reject
+                                    </button>
+                                    <button type="button" 
+                                            onclick="setPreReply('thank_you')"
+                                            class="pre-reply-btn px-4 py-2 text-sm rounded-md border">
+                                        <i class="fas fa-heart text-pink-500 mr-2"></i>Thank You
+                                    </button>
+                                </div>
+                                <input type="hidden" name="pre_reply" id="preReplyInput">
+                            </div>
+
                             <!-- Message Content -->
                             <div>
-                                <textarea name="content" rows="6" required
+                                <textarea name="content" id="replyContent" rows="6" required
                                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                     placeholder="Write your reply..."></textarea>
                             </div>
@@ -389,7 +412,9 @@
                             
                             <!-- Recipients Selection -->
                             <div class="relative">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">To:</label>
+                            <label class="text-sm font-medium mb-2">To:</label>
+                          
+                                <label class="block text-sm font-medium text-gray-700 mb-2"></label>
                                 <div class="relative">
                                     <button type="button" 
                                             onclick="toggleForwardRecipientDropdown()"
@@ -432,7 +457,8 @@
 
                             <!-- Subject -->
                             <div>
-                                <label for="forward_subject" class="block text-sm font-medium text-gray-700">Subject:</label>
+                                <label class="text-sm font-medium mb-4">Subject:</label>
+                                <label for="forward_subject" class="flex-1 mt-0 block text-sm font-medium text-gray-700"></label>
                                 <input type="text" name="subject" id="forward_subject" required
                                     value="Fwd: {{ $message->subject }}"
                                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
@@ -638,6 +664,51 @@ To: {{ $message->recipient->username }} <{{ $message->recipient->email }}>
                             deadlineInput.value = '';
                         }
                     });
+
+                    function setPreReply(type) {
+                        // Update hidden input
+                        document.getElementById('preReplyInput').value = type;
+                        
+                        // Update textarea content based on type
+                        const textarea = document.getElementById('replyContent');
+                        const currentDate = new Date().toLocaleDateString();
+                        const sender = "{{ auth()->user()->username }} <{{ auth()->user()->email }}>";
+                        
+                        let content = '';
+                        switch(type) {
+                            case 'approved':
+                                content = `Dear {{ $message->sender->username }},
+I hope this email finds you well. After careful consideration of your request, I am pleased to inform you that it has been approved.
+Thank you for your patience during the review process.
+
+Best regards,
+${sender}`;
+                                break;
+                            case 'rejected':
+                                content = `Dear {{ $message->sender->username }},
+I hope this email finds you well. After careful review of your request, I regret to inform you that we are unable to approve it at this time.
+Thank you for your understanding.
+
+Best regards,
+${sender}`;
+                                break;
+                            case 'thank_you':
+                                content = `Dear {{ $message->sender->username }},
+Thank you for your message. I appreciate you taking the time to reach out.
+
+Best regards,
+${sender}`;
+                                break;
+                        }
+                        
+                        textarea.value = content;
+                        
+                        // Update button styles
+                        document.querySelectorAll('.pre-reply-btn').forEach(btn => {
+                            btn.classList.remove('bg-blue-50', 'border-blue-500');
+                        });
+                        event.target.closest('.pre-reply-btn').classList.add('bg-blue-50', 'border-blue-500');
+                    }
                     </script>
                 </div>
             </div>

@@ -12,7 +12,8 @@
                         
                         <!-- Recipient Selection -->
                         <div class="relative">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">To:</label>
+                            <!-- <label class="text-sm font-medium mb-4">Subject:</label> -->
+                            <label class="text-sm font-medium mb-2">To:</label>
                             <div class="relative">
                                 <button type="button" 
                                         onclick="toggleRecipientDropdown()"
@@ -41,8 +42,8 @@
                                                            value="{{ $user->id }}" 
                                                            class="recipient-checkbox rounded border-gray-300 text-blue-600">
                                                     <div>
-                                                        <div class="text-sm font-medium text-gray-700">{{ $user->username }}</div>
-                                                        <div class="text-xs text-gray-500">{{ $user->email }}</div>
+                                                        <div class="text-sm font-medium text-gray-500">{{ $user->username }} ({{ $user->email }})</div>
+                                                        <!-- <div class="text-xs text-gray-500">{{ $user->email }}</div> -->
                                                     </div>
                                                 </label>
                                             </div>
@@ -57,7 +58,7 @@
 
                         <!-- Subject -->
                         <div>
-                            <label for="subject" class="block text-sm font-medium text-gray-700">Subject:</label>
+                            <label for="subject" class="text-sm font-medium">Subject:</label>
                             <input type="text" name="subject" id="subject" required
                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                         </div>

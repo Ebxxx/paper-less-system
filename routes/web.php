@@ -41,6 +41,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/mail/{message}/star', [MessageController::class, 'toggleStar'])->name('mail.toggle-star');
     Route::post('/mail/{message}/toggle-archive', [MessageController::class, 'toggleArchive'])->name('mail.toggle-archive');
     Route::post('/mail/{message}/toggle-read', [MessageController::class, 'toggleRead'])->name('mail.toggle-read');
+    
+    // Add this new route for downloading attachments
+    Route::get('/mail/attachment/{attachment}/download', [MessageController::class, 'download'])->name('mail.download');
 });
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
