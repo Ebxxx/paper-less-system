@@ -63,8 +63,63 @@
                         <p class="text-center text-gray-500">Uploaded signature display here</p>
                     @endif
                 </div>
-                <input type="file" name="signature" class="mt-2" accept="image/*">
+                <div class="mt-2 flex flex-col">
+                    <div class="flex items-center gap-2">
+                        <button type="button" 
+                            onclick="openSignatureTerms()" 
+                            class="text-blue-600 hover:text-blue-800 underline text-sm">
+                            Upload Signature
+                        </button>
+                        <span id="selected-file-name" class="text-sm text-gray-600"></span>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-1">
+                        Copy the image and paste it to the document file to use digital signature
+                    </p>
+                </div>
+                <input type="file" 
+                    id="signature-input" 
+                    name="signature" 
+                    class="hidden" 
+                    accept="image/*"
+                    onchange="handleFileSelect(this)">
                 <x-input-error class="mt-2" :messages="$errors->get('signature')" />
+            </div>
+
+            <!-- Terms and Agreement Modal -->
+            <div id="signature-terms-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
+                <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                    <div class="mt-3 text-center">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">E-Signature Terms</h3>
+                        <div class="mt-2 px-7 py-3">
+                            <p class="text-sm text-gray-500 text-left">
+                                By uploading your e-signature, you agree to the following:
+                                <ul class="list-disc mt-2 ml-4 text-left">
+                                    <li>Your e-signature will be used for official documents</li>
+                                    <li>You are the rightful owner of this signature</li>
+                                    <li>You authorize its use for digital signing purposes</li>
+                                    <li>You understand this is legally binding</li>
+                                </ul>
+                            </p>
+                        </div>
+                        <div class="items-center px-4 py-3">
+                            <input type="checkbox" id="terms-checkbox" class="mr-2">
+                            <label for="terms-checkbox" class="text-sm text-gray-600">I agree to the terms and conditions</label>
+                        </div>
+                        <div class="items-center px-4 py-3">
+                            <button id="accept-terms" 
+                                class="px-4 py-2 bg-blue-600 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-50"
+                                disabled
+                                onclick="acceptTerms()">
+                                Continue
+                            </button>
+                            <button 
+                                class="mt-3 px-4 py-2 bg-gray-100 text-gray-700 text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300"
+                                onclick="closeSignatureTerms()">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Action Buttons -->
@@ -75,3 +130,32 @@
         </div>
     </form>
 </section>
+
+<script>
+    function openSignatureTerms() {
+        document.getElementById('signature-terms-modal').classList.remove('hidden');
+    }
+
+    function closeSignatureTerms() {
+        document.getElementById('signature-terms-modal').classList.add('hidden');
+        document.getElementById('terms-checkbox').checked = false;
+        document.getElementById('accept-terms').disabled = true;
+    }
+
+    function acceptTerms() {
+        document.getElementById('signature-input').click();
+        closeSignatureTerms();
+    }
+
+    function handleFileSelect(input) {
+        if (input.files && input.files[0]) {
+            const fileName = input.files[0].name;
+            document.getElementById('selected-file-name').textContent = `Selected: ${fileName}`;
+        }
+    }
+
+    // Enable/disable accept button based on checkbox
+    document.getElementById('terms-checkbox').addEventListener('change', function() {
+        document.getElementById('accept-terms').disabled = !this.checked;
+    });
+</script>
