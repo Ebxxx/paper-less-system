@@ -43,7 +43,7 @@
                                 <div class="space-y-2">
                                     <h4 class="font-medium text-blue-600">About</h4>
                                     <div class="text-sm space-y-1 text-gray-600">
-                                        <p>{{ auth()->user()->first_name }} {{ auth()->user()->middle_name }} {{ auth()->user()->last_name }}</p>
+                                        <p>{{ auth()->user()->prefix }} {{ auth()->user()->first_name }} {{ auth()->user()->middle_name }} {{ auth()->user()->last_name }} , {{ auth()->user()->order_title }}                                                </p>
                                         <p>{{ auth()->user()->job_title }}</p>
                                         <p>{{ auth()->user()->program }} - {{ auth()->user()->department }}</p>
                                     </div>

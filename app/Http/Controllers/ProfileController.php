@@ -36,6 +36,8 @@ class ProfileController extends Controller
             'program' => ['required', 'string', 'max:255'],
             'department' => ['required', 'string', 'max:255'],
             'signature' => ['nullable', 'image', 'max:2048'], // 2MB max
+            'prefix' => ['nullable', 'string', 'max:10'],
+            'order_title' => ['nullable', 'string', 'max:255'],
         ]);
 
         $user = $request->user();

@@ -6,21 +6,21 @@
             @method('put')
 
             <div class="grid gap-4">
-                <div>
-                    <x-input-label for="current_password" :value="__('Current password')" />
-                    <x-text-input id="current_password" name="current_password" type="password" class="mt-1 block w-full" autocomplete="current-password" placeholder="Enter current password" />
+                <div class="flex items-center space-x-4">
+                    <x-input-label for="current_password" :value="__('Current password')" class="w-1/4" />
+                    <x-text-input id="current_password" name="current_password" type="password" class="mt-0 block w-3/4" autocomplete="current-password" placeholder="Enter current password" />
                     <x-input-error :messages="$errors->updatePassword->get('current_password')" class="mt-2" />
                 </div>
 
-                <div>
-                    <x-input-label for="password" :value="__('New password')" />
-                    <x-text-input id="password" name="password" type="password" class="mt-1 block w-full" autocomplete="new-password" placeholder="Enter new password" />
+                <div class="flex items-center space-x-4">
+                    <x-input-label for="password" :value="__('New password')" class="w-1/4" />
+                    <x-text-input id="password" name="password" type="password" class="mt-0 block w-3/4" autocomplete="new-password" placeholder="Enter new password" />
                     <x-input-error :messages="$errors->updatePassword->get('password')" class="mt-2" />
                 </div>
 
-                <div>
-                    <x-input-label for="password_confirmation" :value="__('Confirm password')" />
-                    <x-text-input id="password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full" autocomplete="new-password" placeholder="Confirm new password" />
+                <div class="flex items-center space-x-4">
+                    <x-input-label for="password_confirmation" :value="__('Confirm password')" class="w-1/4" />
+                    <x-text-input id="password_confirmation" name="password_confirmation" type="password" class="mt-0 block w-3/4" autocomplete="new-password" placeholder="Confirm new password" />
                     <x-input-error :messages="$errors->updatePassword->get('password_confirmation')" class="mt-2" />
                 </div>
 

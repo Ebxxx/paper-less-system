@@ -9,6 +9,36 @@
                 {{ session('success') }}
             </div>
         @endif
+
+              <!-- Grid for prefix and order title -->
+              <div class="grid grid-cols-3 gap-4">
+                <div>
+                    <x-input-label for="prefix" :value="__('Prefix')" />
+                    <select id="prefix" name="prefix" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                        <option value=""></option>
+                        <option value="Dr." {{ old('prefix', $user->prefix) === 'Dr.' ? 'selected' : '' }}>Dr.</option>
+                        <option value="Mr." {{ old('prefix', $user->prefix) === 'Mr.' ? 'selected' : '' }}>Mr.</option>
+                        <option value="Ms." {{ old('prefix', $user->prefix) === 'Ms.' ? 'selected' : '' }}>Ms.</option>
+                        <option value="Mrs." {{ old('prefix', $user->prefix) === 'Mrs.' ? 'selected' : '' }}>Mrs.</option>
+                        <option value="Prof." {{ old('prefix', $user->prefix) === 'Prof.' ? 'selected' : '' }}>Prof.</option>
+                    </select>
+                    <x-input-error class="mt-2" :messages="$errors->get('prefix')" />
+                </div>
+
+                <div class="col-span-2">
+                    <x-input-label for="order_title" :value="__('Academic Titles (in order)')" />
+                    <x-text-input 
+                        id="order_title" 
+                        name="order_title" 
+                        type="text" 
+                        class="mt-1 block w-full" 
+                        :value="old('order_title', $user->order_title)"
+                        placeholder="e.g., PhD, MPH, MA or MA, MPH, PhD" 
+                    />
+                    <p class="mt-1 text-sm text-gray-500">Enter your academic titles in order, separated by commas</p>
+                    <x-input-error class="mt-2" :messages="$errors->get('order_title')" />
+                </div>
+            </div>
         
         <div class="grid gap-4">
             <!-- First name, Middle name, Last name row -->

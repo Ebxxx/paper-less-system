@@ -90,7 +90,7 @@
                                                 <!-- User Details -->
                                                 <div class="flex-1">
                                                     <h3 class="font-medium text-base">
-                                                        {{ $message->sender->first_name }} {{ $message->sender->middle_name }} {{ $message->sender->last_name }}
+                                                    {{ $message->sender->prefix }} {{ $message->sender->first_name }} {{ $message->sender->middle_name }} {{ $message->sender->last_name }} {{ $message->sender->order_title }}
                                                     </h3>
                                                     <p class="text-gray-600">{{ $message->sender->job_title }}</p>
                                                     <p class="text-gray-600">{{ $message->sender->program }} - {{ $message->sender->department }}</p>
@@ -121,7 +121,7 @@
                                                 <!-- User Details -->
                                                 <div class="flex-1">
                                                     <h3 class="font-medium text-base">
-                                                        {{ $message->recipient->firstname }} {{ $message->recipient->middlename }} {{ $message->recipient->lastname }}
+                                                        {{ $message->recipient->prefix }} {{ $message->recipient->first_name }} {{ $message->recipient->middle_name }} {{ $message->recipient->last_name }} {{ $message->recipient->order_title }}
                                                     </h3>
                                                     <p class="text-gray-600">{{ $message->recipient->job_title }}</p>
                                                     <p class="text-gray-600">{{ $message->recipient->program }} - {{ $message->recipient->department }}</p>
@@ -413,7 +413,6 @@
                             <!-- Recipients Selection -->
                             <div class="relative">
                             <label class="text-sm font-medium mb-2">To:</label>
-                          
                                 <label class="block text-sm font-medium text-gray-700 mb-2"></label>
                                 <div class="relative">
                                     <button type="button" 
