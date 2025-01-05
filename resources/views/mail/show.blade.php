@@ -6,31 +6,49 @@
                     <!-- Message Header -->
                     <div class="border-b pb-4 mb-4">
                         <div class="flex justify-between items-start mb-4">
-                            <div>
-                                <h2 class="text-2xl font-semibold">{{ $message->subject }}</h2>
-                                <!-- Add Marks Display -->
-                                @if($message->mark)
-                                    <div class="flex items-center space-x-2 mt-2">
-                                        @if($message->mark->is_important)
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
-                                                <i class="fas fa-exclamation-circle mr-1"></i>Important
-                                            </span>
-                                        @endif
-                                        @if($message->mark->is_urgent)
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
-                                                <i class="fas fa-exclamation-triangle mr-1"></i>Urgent
-                                            </span>
-                                        @endif
-                                        @if($message->mark->deadline)
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium 
-                                                {{ now() > $message->mark->deadline ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' }}">
-                                                <i class="fas fa-clock mr-1"></i>
-                                                Deadline: {{ $message->mark->deadline->format('M d, Y h:i A') }}
-                                            </span>
-                                        @endif
-                                    </div>
-                                @endif
+                            <div class="flex items-center space-x-4">
+                                <!-- Profile Picture -->
+                                <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center flex-shrink-0">
+                                    @if($message->sender->profile_picture)
+                                        <img src="{{ asset($message->sender->profile_picture) }}" 
+                                             alt="Profile Picture" 
+                                             class="w-full h-full object-cover">
+                                    @else
+                                        <div class="w-full h-full flex items-center justify-center text-blue-600 text-lg font-semibold">
+                                            {{ strtoupper(substr($message->sender->username, 0, 1)) }}
+                                        </div>
+                                    @endif
+                                </div>
+                                
+                                <!-- Subject and Marks -->
+                                <div>
+                                    <h2 class="text-2xl font-semibold">{{ $message->subject }}</h2>
+                                    <!-- Add Marks Display -->
+                                    @if($message->mark)
+                                        <div class="flex items-center space-x-2 mt-2">
+                                            @if($message->mark->is_important)
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                    <i class="fas fa-exclamation-circle mr-1"></i>Important
+                                                </span>
+                                            @endif
+                                            @if($message->mark->is_urgent)
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                                                    <i class="fas fa-exclamation-triangle mr-1"></i>Urgent
+                                                </span>
+                                            @endif
+                                            @if($message->mark->deadline)
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium 
+                                                    {{ now() > $message->mark->deadline ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' }}">
+                                                    <i class="fas fa-clock mr-1"></i>
+                                                    Deadline: {{ $message->mark->deadline->format('M d, Y h:i A') }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
+
+                            <!-- Action Buttons -->
                             <div class="flex items-center space-x-3">
                                 <!-- Read/Unread Status with Icon -->
                                 <span class="group relative">
@@ -83,8 +101,16 @@
                                         <div class="hidden group-hover:block absolute left-0 mt-2 w-96 bg-white border rounded-lg shadow-lg p-4 z-20">
                                             <div class="flex items-start space-x-4">
                                                 <!-- User Avatar/Initial -->
-                                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-lg font-semibold">
-                                                    {{ strtoupper(substr($message->sender->username, 0, 1)) }}
+                                                <div class="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+                                                    @if($message->sender->profile_picture)
+                                                        <img src="{{ asset($message->sender->profile_picture) }}" 
+                                                             alt="Profile Picture" 
+                                                             class="w-full h-full object-cover">
+                                                    @else
+                                                        <div class="w-full h-full flex items-center justify-center text-blue-600 text-lg font-semibold">
+                                                            {{ strtoupper(substr($message->sender->username, 0, 1)) }}
+                                                        </div>
+                                                    @endif
                                                 </div>
                                                 
                                                 <!-- User Details -->
@@ -114,8 +140,16 @@
                                         <div class="hidden group-hover:block absolute left-0 mt-2 w-96 bg-white border rounded-lg shadow-lg p-4 z-20">
                                             <div class="flex items-start space-x-4">
                                                 <!-- User Avatar/Initial -->
-                                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-lg font-semibold">
-                                                    {{ strtoupper(substr($message->recipient->username, 0, 1)) }}
+                                                <div class="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+                                                    @if($message->recipient->profile_picture)
+                                                        <img src="{{ asset($message->recipient->profile_picture) }}" 
+                                                             alt="Profile Picture" 
+                                                             class="w-full h-full object-cover">
+                                                    @else
+                                                        <div class="w-full h-full flex items-center justify-center text-blue-600 text-lg font-semibold">
+                                                            {{ strtoupper(substr($message->recipient->username, 0, 1)) }}
+                                                        </div>
+                                                    @endif
                                                 </div>
                                                 
                                                 <!-- User Details -->
@@ -211,8 +245,16 @@
                                         <div class="flex justify-between items-start mb-2">
                                             <div class="flex items-start space-x-3">
                                                 <!-- User Avatar -->
-                                                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-sm font-semibold">
-                                                    {{ strtoupper(substr($threadMessage->sender->username, 0, 1)) }}
+                                                <div class="w-8 h-8 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center flex-shrink-0">
+                                                    @if($threadMessage->sender->profile_picture)
+                                                        <img src="{{ asset($threadMessage->sender->profile_picture) }}" 
+                                                             alt="Profile Picture" 
+                                                             class="w-full h-full object-cover">
+                                                    @else
+                                                        <div class="w-full h-full flex items-center justify-center text-blue-600 text-sm font-semibold">
+                                                            {{ strtoupper(substr($threadMessage->sender->username, 0, 1)) }}
+                                                        </div>
+                                                    @endif
                                                 </div>
                                                 
                                                 <div>
@@ -295,8 +337,6 @@
                         </button>
                     </div>
 
-                    <!-- Add this temporarily for debugging -->
-                    <!-- <div class="text-sm text-gray-500">Debug: Message ID: {{ $message->id }}</div> -->
 
                     <!-- Inline Reply Form -->
                     <div id="replyForm" class="mt-6 border-t pt-6 hidden">

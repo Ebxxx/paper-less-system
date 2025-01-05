@@ -25,6 +25,7 @@ class ProfileUpdateRequest extends FormRequest
             'department' => ['required', 'string', 'max:255'],
             'prefix' => ['nullable', 'string', 'max:10'],
             'order_title' => ['nullable', 'string', 'max:255'],
+            'profile_picture' => ['nullable', 'image', 'max:2048'],
         ];
     }
 }

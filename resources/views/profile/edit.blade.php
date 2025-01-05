@@ -34,8 +34,15 @@
                             <!-- Left Sidebar -->
                             <div class="w-1/4 pr-8 border-r">
                                 <div class="text-center mb-6">
-                                    <div class="w-32 h-32 mx-auto bg-gray-200 rounded-full flex items-center justify-center mb-4">
-                                        <i class="fas fa-user text-4xl text-gray-400"></i>
+                                    <!-- Profile Picture Display -->
+                                    <div class="w-32 h-32 mx-auto bg-gray-200 rounded-full flex items-center justify-center mb-4 overflow-hidden">
+                                        @if(auth()->user()->profile_picture)
+                                            <img src="{{ asset(auth()->user()->profile_picture) }}" 
+                                                 alt="Profile Picture" 
+                                                 class="w-full h-full object-cover">
+                                        @else
+                                            <i class="fas fa-user text-4xl text-gray-400"></i>
+                                        @endif
                                     </div>
                                     <h3 class="font-medium">{{ auth()->user()->username }}</h3>
                                     <p class="text-gray-600 text-sm">{{ auth()->user()->email }}</p>
@@ -43,7 +50,7 @@
                                 <div class="space-y-2">
                                     <h4 class="font-medium text-blue-600">About</h4>
                                     <div class="text-sm space-y-1 text-gray-600">
-                                        <p>{{ auth()->user()->prefix }} {{ auth()->user()->first_name }} {{ auth()->user()->middle_name }} {{ auth()->user()->last_name }} , {{ auth()->user()->order_title }}                                                </p>
+                                        <p>{{ auth()->user()->prefix }} {{ auth()->user()->first_name }} {{ auth()->user()->middle_name }} {{ auth()->user()->last_name }} {{ auth()->user()->order_title }}</p>
                                         <p>{{ auth()->user()->job_title }}</p>
                                         <p>{{ auth()->user()->program }} - {{ auth()->user()->department }}</p>
                                     </div>

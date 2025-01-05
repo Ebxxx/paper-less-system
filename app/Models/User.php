@@ -31,7 +31,8 @@ class User extends Authenticatable
         'prefix',
         'order_title',
         'signature_path',
-        'is_online'
+        'is_online',
+        'profile_picture',
     ];
 
 
