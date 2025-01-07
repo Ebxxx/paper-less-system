@@ -8,6 +8,8 @@ use App\Models\User;
 use App\Models\MessageAttachment;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\Attachment;
+use App\Events\MessageRead;
 
 class Message extends Model
 {
@@ -85,5 +87,21 @@ class Message extends Model
     public function marks(): HasMany
     {
         return $this->hasMany(MessageMark::class);
+    }
+
+    public function attachments()
+    {
+        return $this->hasMany(Attachment::class);
+    }
+
+    public function markAsRead()
+    {
+        $this->read_at = now();
+        $this->save();
+        
+        // Dispatch event if needed
+        event(new MessageRead($this));
+        
+        return $this;
     }
 }

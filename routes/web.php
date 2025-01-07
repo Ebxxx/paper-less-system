@@ -7,6 +7,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\SuperadminController;
 use App\Http\Middleware\CheckMaintenanceMode;
+use App\Http\Controllers\FolderController;
 
 Route::get('/maintenance', function () {
     return view('maintenance');
@@ -44,6 +45,21 @@ Route::middleware('auth')->group(function () {
     
     // Add this new route for downloading attachments
     Route::get('/mail/attachment/{attachment}/download', [MessageController::class, 'download'])->name('mail.download');
+
+    // Folder routes
+    Route::prefix('folders')->name('folders.')->group(function () {
+        Route::post('/', [FolderController::class, 'store'])->name('store');
+        Route::get('/{folder}', [FolderController::class, 'show'])->name('show');
+        Route::post('/add-message', [FolderController::class, 'addMessage'])->name('add-message');
+        Route::delete('/{folder}', [FolderController::class, 'destroy'])->name('destroy');
+        Route::put('/{folder}', [FolderController::class, 'update'])->name('update');
+    });
+
+    Route::get('/mail/folder/{folder}', [FolderController::class, 'show'])->name('mail.folder');
+
+    // Add this new route for removing messages from folders
+    Route::delete('/folders/{folder}/messages/{message}', [FolderController::class, 'removeMessage'])
+        ->name('folders.remove-message');
 });
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {

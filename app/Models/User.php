@@ -83,4 +83,9 @@ class User extends Authenticatable
                     ->where('is_archived', false);
     }
 
+    public function folders()
+    {
+        return $this->hasMany(Folder::class);
+    }
+
 }

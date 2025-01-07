@@ -74,6 +74,37 @@
                                                             </button>
                                                         </form>
                                                     @endif
+
+                                                    <!-- Add to Folder Dropdown -->
+                                                    <div class="relative" x-data="{ open: false }">
+                                                        <button @click.prevent="open = !open" 
+                                                                class="text-gray-600 hover:text-gray-800 focus:outline-none group relative">
+                                                            <i class="fas fa-folder-plus"></i>
+                                                            <span class="absolute hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap z-10">
+                                                                Add to folder
+                                                            </span>
+                                                        </button>
+                                                        <div x-show="open"
+                                                             @click.away="open = false"
+                                                             x-transition:enter="transition ease-out duration-100"
+                                                             x-transition:enter-start="transform opacity-0 scale-95"
+                                                             x-transition:enter-end="transform opacity-100 scale-100"
+                                                             x-transition:leave="transition ease-in duration-75"
+                                                             x-transition:leave-start="transform opacity-100 scale-100"
+                                                             x-transition:leave-end="transform opacity-0 scale-95"
+                                                             class="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 py-1">
+                                                            @forelse(auth()->user()->folders as $folder)
+                                                                <button @click="open = false" 
+                                                                        onclick="addToFolder('{{ $message->id }}', '{{ $folder->id }}')"
+                                                                        class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                                    <i class="fas fa-folder mr-2"></i>
+                                                                    {{ $folder->name }}
+                                                                </button>
+                                                            @empty
+                                                                <div class="px-4 py-2 text-sm text-gray-500">No folders available</div>
+                                                            @endforelse
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
@@ -536,5 +567,47 @@
                 setTimeout(updateTabDisplay, 100);
             });
         });
+
+        function addToFolder(messageId, folderId) {
+            fetch('{{ route("folders.add-message") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ 
+                    message_id: messageId,
+                    folder_id: folderId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success notification
+                    alert('Message added to folder');
+                }
+            });
+        }
     </script>
+
+    <style>
+    /* Ensure dropdowns are visible */
+    [x-cloak] { 
+        display: none !important; 
+    }
+
+    .relative {
+        position: relative !important;
+    }
+
+    /* Dropdown menu styling */
+    .absolute {
+        position: absolute !important;
+    }
+
+    /* Ensure proper z-index */
+    .z-50 {
+        z-index: 50 !important;
+    }
+    </style>
 </x-app-layout> 
