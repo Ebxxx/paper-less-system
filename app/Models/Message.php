@@ -89,10 +89,10 @@ class Message extends Model
         return $this->hasMany(MessageMark::class);
     }
 
-    public function attachments()
-    {
-        return $this->hasMany(Attachment::class);
-    }
+    // public function attachments()
+    // {
+    //     return $this->hasMany(Attachment::class);
+    // }
 
     public function markAsRead()
     {

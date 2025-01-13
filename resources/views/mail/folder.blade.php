@@ -5,7 +5,7 @@
                 <div class="p-6">
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-2xl font-semibold">
-                            <i class="fas fa-folder mr-2"></i>{{ $folder->name }}
+                            {{ $folder->name }} folder
                         </h2>
                         <div class="flex items-center space-x-2" id="bulkActions" style="display: none;">
                             <button onclick="archiveSelected()" class="inline-flex items-center px-3 py-1 text-sm bg-gray-600 text-white rounded hover:bg-gray-700">

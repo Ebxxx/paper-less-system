@@ -418,7 +418,7 @@
 
                             <!-- Action Buttons Bar -->
                             <div class="flex items-center space-x-2">
-                                <button type="submit" 
+                                <button type="submit-reply" 
                                     class="action-button">
                                     <i class="fas fa-paper-plane"></i><span class="ml-3">Send Reply</span>
                                 </button>
@@ -557,7 +557,7 @@ To: {{ $message->recipient->username }} <{{ $message->recipient->email }}>
 
                             <!-- Action Buttons Bar -->
                             <div class="flex items-center space-x-2">
-                                <button type="submit" 
+                                <button type="submit-forward" 
                                     class="action-button">
                                     <i class="fas fa-paper-plane"></i><span class="ml-3">Forward Message</span>
                                 </button>

@@ -97,6 +97,91 @@ mark:hover {
     @apply hover:bg-gray-50 hover:shadow-md;
 }
 
+/* Button styling */
+button[type="submit-logout"] {
+    /* @apply bg-gray-900; */
+    @apply text-red-600;
+    @apply w-full;
+    @apply py-2.5;
+    @apply rounded-md;
+    @apply font-medium;
+    @apply text-sm;
+    @apply transition-colors;
+   
+}
+
+.logo-login-container {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-weight: 800;
+    display: inline-block;
+    line-height: 0.8;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Login Page Logo */
+
+.logo-edu-login-container {
+    color: #93C5FD;
+    font-weight: 800;
+    font-size: 7rem;
+    letter-spacing: -2px;
+}
+
+.logo-mail-login-container {
+    font-style: italic;
+    font-weight: 800;
+    color: white;
+    font-size: 7rem;
+    letter-spacing: -2px;
+}
+
+.logo-container {
+    display: inline-block;
+    margin: -0.75rem 0;
+    line-height: 1;
+}
+
+
+/* Header Container Styles */
+.header-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: -8rem;
+    margin-left: 0.25rem;
+    position: relative;
+}
+
+.welcome-text {
+    font-size: 2.5rem;
+    font-weight: 400;
+    color: white;
+    margin-bottom: 0.25rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.subheading {
+    color: #fcfdff;
+    font-size: 1.125rem;
+    margin-top: 0.5rem;
+    margin-left: 0.25rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    line-height: 1.5;
+}
+
+/* Update the login form container */
+.login-container {
+    background-color: white;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    width: 100%;
+    max-width: 28rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+
 .action-button i {
     @apply mr-3;
 }
@@ -292,15 +377,19 @@ emoji-picker::-webkit-scrollbar-thumb:hover {
     @apply grid grid-cols-2 gap-4;
 }
 
+
+/* I Disable the default input field styles because I want to use the custom styles */
+
 /* Input Field Styles */
-input[type="text"],
+/* input[type="text"],
 input[type="password"] {
     @apply w-full px-3 py-2;
     @apply border border-gray-300 rounded-md;
     @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
     @apply text-gray-700;
-}
+} */
 
+/* I Disable the default file upload button styles because I want to use the custom styles */
 /* File Upload Button */
 /* input[type="file"] {
     @apply mt-2 block w-full text-sm text-gray-500;

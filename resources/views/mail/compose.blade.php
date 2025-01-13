@@ -121,7 +121,7 @@
                         <!-- Action Buttons Bar -->
                         <div class="flex items-center space-x-1 border-t pt-4">
                             <!-- Send Button -->
-                            <button type="submit" 
+                            <button type="submit-send" 
                                     class="inline-flex items-center px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">
                                 Send
                             </button>

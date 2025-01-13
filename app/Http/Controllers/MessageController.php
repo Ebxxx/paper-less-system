@@ -19,6 +19,12 @@ class MessageController extends Controller
             ->where('is_archived', false)
             ->with(['sender', 'mark', 'attachments']);
 
+        // Get total unread count
+        $unreadCount = auth()->user()->receivedMessages()
+            ->where('is_archived', false)
+            ->whereNull('read_at')
+            ->count();
+
         $search = $request->get('search');
         
         if ($search) {
@@ -36,7 +42,7 @@ class MessageController extends Controller
 
         $messages = $query->latest()->paginate(10);
         
-        return view('mail.inbox', compact('messages', 'search'));
+        return view('mail.inbox', compact('messages', 'search', 'unreadCount'));
     }
 
     public function sent(Request $request)

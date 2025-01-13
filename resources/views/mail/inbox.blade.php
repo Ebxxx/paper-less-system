@@ -3,11 +3,19 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
+                    <!-- Title and Unread Count -->
                     <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-2xl font-semibold">Inbox</h2>
+                        <div class="flex items-baseline space-x-2">
+                            <h2 class="text-2xl font-semibold">Inbox</h2>
+                            @if($unreadCount > 0)
+                                <span class="inline-flex items-center justify-center px-2 py-1 text-lg font-bold text-blue-500">
+                                    {{ $unreadCount }} Unread Mail
+                                </span>
+                            @endif
+                        </div>
                         <div class="flex items-center space-x-2" id="bulkActions" style="display: none;">
                             <button onclick="archiveSelected()" class="inline-flex items-center px-3 py-1 text-sm bg-gray-600 text-white rounded hover:bg-gray-700">
-                                <i class="fas fa-archive mr-2"></i> Archive
+                                <i class="fas fa-archive mr-2"></i>Archive
                             </button>
                         </div>
                     </div>
