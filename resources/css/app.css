@@ -1,3 +1,12 @@
+:root {
+    --layout-scale: 0.9;
+}
+
+/* Update base font size */
+html {
+    font-size: calc(16px * var(--layout-scale));
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -123,7 +132,7 @@ button[type="submit-logout"] {
 .logo-edu-login-container {
     color: #93C5FD;
     font-weight: 800;
-    font-size: 7rem;
+    font-size: calc(7rem * var(--layout-scale));
     letter-spacing: -2px;
 }
 
@@ -131,7 +140,7 @@ button[type="submit-logout"] {
     font-style: italic;
     font-weight: 800;
     color: white;
-    font-size: 7rem;
+    font-size: calc(7rem * var(--layout-scale));
     letter-spacing: -2px;
 }
 
@@ -175,9 +184,9 @@ button[type="submit-logout"] {
 .login-container {
     background-color: white;
     border-radius: 0.5rem;
-    padding: 2rem;
+    padding: calc(2rem * var(--layout-scale));
     width: 100%;
-    max-width: 28rem;
+    max-width: calc(28rem * var(--layout-scale));
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 

@@ -44,5 +44,16 @@
         <div class="min-h-screen bg-gray-100">
             @include('layouts.userSidebar')
         </div>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Prevent click event bubbling for dropdowns
+            document.querySelectorAll('.dropdown-content').forEach(dropdown => {
+                dropdown.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            });
+        });
+        </script>
     </body>
 </html>

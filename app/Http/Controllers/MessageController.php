@@ -17,7 +17,8 @@ class MessageController extends Controller
     {
         $query = auth()->user()->receivedMessages()
             ->where('is_archived', false)
-            ->with(['sender', 'mark', 'attachments']);
+            ->with(['sender', 'mark', 'attachments'])
+            ->whereDoesntHave('folders');
 
         // Get total unread count
         $unreadCount = auth()->user()->receivedMessages()

@@ -134,428 +134,13 @@
                 </div>
                 <div class="hidden sm:flex sm:items-center sm:ms-6">
                     <!-- Add Help & Guide Button -->
-                    <div class="relative mr-4" x-data="{ showHelp: false }" @click.away="showHelp = false">
-                        <button @click="showHelp = !showHelp" 
+                    @include('documentation.help-guide')
+
+                    <!-- User Dropdown -->
+                    <div class="relative" x-data="{ open: false }" @click.away="open = false">
+                        <button @click.prevent.stop="open = !open" 
                                 class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                            <i class="fas fa-question-circle mr-2"></i>
-                            Help & Guide
-                        </button>
-
-                        <!-- Help Dropdown -->
-                        <div x-show="showHelp"
-                             x-transition:enter="transition ease-out duration-200"
-                             x-transition:enter-start="transform opacity-0 scale-95"
-                             x-transition:enter-end="transform opacity-100 scale-100"
-                             x-transition:leave="transition ease-in duration-75"
-                             x-transition:leave-start="transform opacity-100 scale-100"
-                             x-transition:leave-end="transform opacity-0 scale-95"
-                             class="absolute z-50 mt-2 w-72 rounded-md shadow-lg origin-top-right right-0"
-                             @click="showHelp = false">
-                            <div class="rounded-md ring-1 ring-black ring-opacity-5 py-1 bg-white">
-                                <div class="px-4 py-3 border-b border-gray-100">
-                                    <h3 class="text-sm font-semibold text-gray-800">Quick Guide</h3>
-                                    <p class="text-sm text-gray-500">Click it to see the full documentation</p>
-                                </div>
-                                
-                                <div class="px-4 py-2">
-                                    <div class="space-y-3">
-                                        <div class="flex items-start cursor-pointer hover:bg-gray-50 p-2 rounded-lg" 
-                                             x-data="{ showComposeGuide: false }"
-                                             @click="showComposeGuide = true">
-                                            <i class="fas fa-envelope mt-1 text-blue-500 w-5"></i>
-                                            <div class="ml-3">
-                                                <p class="text-sm font-medium text-gray-800">Compose Message</p>
-                                                <p class="text-xs text-gray-500">Click the Compose button to create a new message</p>
-                                            </div>
-
-                                            <!-- Compose Message Guide Modal -->
-                                            <template x-teleport="body">
-                                                <div x-show="showComposeGuide" 
-                                                     class="fixed inset-0 z-50 overflow-y-auto"
-                                                     x-cloak>
-                                                    <div class="flex items-center justify-center min-h-screen px-4">
-                                                        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" 
-                                                             @click="showComposeGuide = false"></div>
-
-                                                        <div class="relative bg-white rounded-lg max-w-2xl w-full shadow-xl">
-                                                            <!-- Header -->
-                                                            <div class="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-                                                                <h3 class="text-lg font-medium text-gray-900">
-                                                                    <i class="fas fa-envelope mr-2 text-blue-500"></i>
-                                                                    Compose Message Guide
-                                                                </h3>
-                                                                <button @click="showComposeGuide = false" 
-                                                                        class="text-gray-400 hover:text-gray-500">
-                                                                    <i class="fas fa-times"></i>
-                                                                </button>
-                                                            </div>
-
-                                                            <!-- Content -->
-                                                            <div class="px-6 py-4">
-                                                                <div class="space-y-4">
-                                                                    <!-- Getting Started -->
-                                                                    <div>
-                                                                        <h4 class="text-md font-medium text-gray-900 mb-2">Getting Started</h4>
-                                                                        <p class="text-sm text-gray-600">
-                                                                            To compose a new message, click the "Compose" button located at the top of the sidebar. 
-                                                                            This will open the message composition interface.
-                                                                        </p>
-                                                                    </div>
-
-                                                                    <!-- Recipients -->
-                                                                    <div>
-                                                                        <h4 class="text-md font-medium text-gray-900 mb-2">Adding Recipients</h4>
-                                                                        <ul class="list-disc list-inside text-sm text-gray-600 space-y-2">
-                                                                            <li>Type the recipient's email address in the "To" field</li>
-                                                                            <li>For multiple recipients, click the check box to add multiple recipients</li>
-                                                                            
-                                                                        </ul>
-                                                                    </div>
-
-                                                                    <!-- Composing Content -->
-                                                                    <div>
-                                                                        <h4 class="text-md font-medium text-gray-900 mb-2">Message Content</h4>
-                                                                        <ul class="list-disc list-inside text-sm text-gray-600 space-y-2">
-                                                                            <li>Enter a clear subject line</li>
-                                                                            <li>Use the rich text editor to format your message</li>
-                                                                            <li>You can include bold, italic, and underlined text</li>
-                                                                            <li>Create bulleted or numbered lists</li>
-                                                                            <li>Add hyperlinks to your text</li>
-                                                                        </ul>
-                                                                    </div>
-                                                                         <!-- Message Marking -->
-                                                                        <div class="bg-blue-50 p-4 rounded-lg">
-                                                                        <h4 class="text-md font-medium text-gray-900 mb-2">Message Marking</h4>
-                                                                        <ul class="list-disc list-inside text-sm text-gray-600 space-y-2">
-                                                                            <li>
-                                                                                <span class="font-medium">Important Mark</span>
-                                                                                <ul class="ml-6 mt-1 list-circle">
-                                                                                    <li>Use the <i class="fas fa-exclamation-circle text-yellow-500"></i> checkbox to mark messages as important</li>
-                                                                                    <li>Important messages are highlighted in the recipient's inbox</li>
-                                                                                    <li>Useful for high-priority communications</li>
-                                                                                </ul>
-                                                                            </li>
-                                                                            <li>
-                                                                                <span class="font-medium">Urgent Mark</span>
-                                                                                <ul class="ml-6 mt-1 list-circle">
-                                                                                    <li>Use the <i class="fas fa-exclamation-triangle text-red-500"></i> checkbox for urgent messages</li>
-                                                                                    <li>Urgent messages appear with special indicators</li>
-                                                                                    <li>Recipients receive immediate notifications</li>
-                                                                                </ul>
-                                                                            </li>
-                                                                        </ul>
-                                                                    </div>
-
-                                                                    <!-- Attachments -->
-                                                                    <div>
-                                                                        <h4 class="text-md font-medium text-gray-900 mb-2">Adding Attachments</h4>
-                                                                        <ul class="list-disc list-inside text-sm text-gray-600 space-y-2">
-                                                                            <li>Click the attachment icon or drag and drop files</li>
-                                                                            <li>Maximum file size: 25MB per file</li>
-                                                                            <li>Supported file types: documents, images, PDFs</li>
-                                                                        </ul>
-                                                                    </div>
-
-
-                                                                    <!-- Deadlines -->
-                                                                    <div>
-                                                                        <h4 class="text-md font-medium text-gray-900 mb-2">Setting Deadlines</h4>
-                                                                        <ul class="list-disc list-inside text-sm text-gray-600 space-y-2">
-                                                                            <li>Enable the "Set Deadline" checkbox to add a deadline to your message</li>
-                                                                            <li>Choose date and time using the datetime picker</li>
-                                                                            <li>Recipients will see:
-                                                                                <ul class="ml-6 mt-1 list-circle">
-                                                                                    <li>Countdown timer until deadline</li>
-                                                                                    <li>Visual indicators for approaching deadlines</li>
-                                                                                    <li>Notifications before deadline expiration</li>
-                                                                                </ul>
-                                                                            </li>
-                                                                            <li>Best practices:
-                                                                                <ul class="ml-6 mt-1 list-circle">
-                                                                                    <li>Set realistic deadlines with buffer time</li>
-                                                                                    <li>Consider recipient time zones</li>
-                                                                                    <li>Use with Important/Urgent marks for critical tasks</li>
-                                                                                </ul>
-                                                                            </li>
-                                                                        </ul>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-
-                                                            <!-- Footer -->
-                                                            <div class="border-t border-gray-200 px-6 py-4 flex justify-end">
-                                                                <button @click="showComposeGuide = false"
-                                                                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                                                    Got it
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </template>
-                                        </div>
-                                        
-                                        <div class="flex items-start cursor-pointer hover:bg-gray-50 p-2 rounded-lg" 
-                                             x-data="{ showFolderGuide: false }"
-                                             @click="showFolderGuide = true">
-                                            <i class="fas fa-folder mt-1 text-blue-500 w-5"></i>
-                                            <div class="ml-3">
-                                                <p class="text-sm font-medium text-gray-800">Manage Folder</p>
-                                                <p class="text-xs text-gray-500">Create and organize folder to categorize your messages</p>
-                                            </div>
-
-                                            <!-- Folder Management Guide Modal -->
-                                            <template x-teleport="body">
-                                                <div x-show="showFolderGuide" 
-                                                     class="fixed inset-0 z-50 overflow-y-auto"
-                                                     x-cloak>
-                                                    <div class="flex items-center justify-center min-h-screen px-4">
-                                                        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" 
-                                                             @click="showFolderGuide = false"></div>
-
-                                                        <div class="relative bg-white rounded-lg max-w-2xl w-full shadow-xl">
-                                                            <!-- Header -->
-                                                            <div class="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-                                                                <h3 class="text-lg font-medium text-gray-900">
-                                                                    <i class="fas fa-folder mr-2 text-blue-500"></i>
-                                                                    Folder Management Guide
-                                                                </h3>
-                                                                <button @click="showFolderGuide = false" 
-                                                                        class="text-gray-400 hover:text-gray-500">
-                                                                    <i class="fas fa-times"></i>
-                                                                </button>
-                                                            </div>
-
-                                                            <!-- Content -->
-                                                            <div class="px-6 py-4">
-                                                                <div class="space-y-4">
-                                                                    <!-- Creating Folders -->
-                                                                    <div>
-                                                                        <h4 class="text-md font-medium text-gray-900 mb-2">Creating New Folders</h4>
-                                                                        <ul class="list-disc list-inside text-sm text-gray-600 space-y-2">
-                                                                            <li>Click the <i class="fas fa-plus text-gray-400"></i> icon next to "Folders" in the sidebar</li>
-                                                                            <li>Enter a unique name for your folder</li>
-                                                                            <li>Click "Create" to add the new folder</li>
-                                                                            <li>New folders appear immediately in your sidebar</li>
-                                                                        </ul>
-                                                                    </div>
-
-                                                                    <!-- Managing Folders -->
-                                                                    <div>
-                                                                        <h4 class="text-md font-medium text-gray-900 mb-2">Managing Existing Folders</h4>
-                                                                        <ul class="list-disc list-inside text-sm text-gray-600 space-y-2">
-                                                                            <li>Hover over any folder to reveal management options</li>
-                                                                            <li>Click the <i class="fas fa-ellipsis-v text-gray-400"></i> menu to:
-                                                                                <ul class="ml-6 mt-1 list-circle">
-                                                                                    <li>Rename folder</li>
-                                                                                    <li>Delete folder</li>
-                                                                                </ul>
-                                                                            </li>
-                                                                            <li>Message count appears next to each folder</li>
-                                                                        </ul>
-                                                                    </div>
-
-                                                                    <!-- Organizing Messages -->
-                                                                    <div>
-                                                                        <h4 class="text-md font-medium text-gray-900 mb-2">Organizing Messages</h4>
-                                                                        <ul class="list-disc list-inside text-sm text-gray-600 space-y-2">
-                                                                            <li>Move messages to folders by:
-                                                                                <ul class="ml-6 mt-1 list-circle">
-                                                                                    <li>Dragging and dropping messages</li>
-                                                                                    <li>Using the "Move to folder" option in message actions</li>
-                                                                                    <li>Selecting multiple messages for bulk organization</li>
-                                                                                </ul>
-                                                                            </li>
-                                                                            <li>Messages can be in multiple folders simultaneously</li>
-                                                                        </ul>
-                                                                    </div>
-
-                                                                    <!-- Best Practices -->
-                                                                    <div class="bg-blue-50 p-4 rounded-lg">
-                                                                        <h4 class="text-md font-medium text-blue-900 mb-2">Best Practices</h4>
-                                                                        <ul class="list-disc list-inside text-sm text-blue-800 space-y-2">
-                                                                            <li>Create folders for specific projects or categories</li>
-                                                                            <li>Use clear, descriptive folder names</li>
-                                                                            <li>Regularly review and clean up unused folders</li>
-                                                                            <li>Consider using a naming convention for better organization</li>
-                                                                        </ul>
-                                                                    </div>
-
-                                                            <!-- Footer -->
-                                                            <div class="border-t border-gray-200 px-6 py-4 flex justify-end">
-                                                                <button @click="showFolderGuide = false"
-                                                                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                                                    Got it
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </template>
-                                        </div>
-                                        
-                                        <div class="flex items-start cursor-pointer hover:bg-gray-50 p-2 rounded-lg" 
-                                             x-data="{ showSearchGuide: false }"
-                                             @click="showSearchGuide = true">
-                                            <i class="fas fa-search mt-1 text-blue-500 w-5"></i>
-                                            <div class="ml-3">
-                                                <p class="text-sm font-medium text-gray-800">Search Messages</p>
-                                                <p class="text-xs text-gray-500">Learn how to effectively search through your messages</p>
-                                            </div>
-
-                                            <!-- Search Guide Modal -->
-                                            <template x-teleport="body">
-                                                <div x-show="showSearchGuide" 
-                                                     class="fixed inset-0 z-50 overflow-y-auto"
-                                                     x-cloak>
-                                                    <div class="flex items-center justify-center min-h-screen px-4">
-                                                        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" 
-                                                             @click="showSearchGuide = false"></div>
-
-                                                        <div class="relative bg-white rounded-lg max-w-2xl w-full shadow-xl">
-                                                            <!-- Header -->
-                                                            <div class="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-                                                                <h3 class="text-lg font-medium text-gray-900">
-                                                                    <i class="fas fa-search mr-2 text-blue-500"></i>
-                                                                    Search Messages Guide
-                                                                </h3>
-                                                                <button @click="showSearchGuide = false" 
-                                                                        class="text-gray-400 hover:text-gray-500">
-                                                                    <i class="fas fa-times"></i>
-                                                                </button>
-                                                            </div>
-
-                                                            <!-- Content -->
-                                                            <div class="px-6 py-4">
-                                                                <div class="space-y-4">
-                                                                    <!-- Getting Started -->
-                                                                    <div>
-                                                                        <h4 class="text-md font-medium text-gray-900 mb-2">Getting Started</h4>
-                                                                        <p class="text-sm text-gray-600 mb-2">
-                                                                            The search bar is located at the top of your screen. As you type, results will appear in real-time.
-                                                                        </p>
-                                                                        <ul class="list-disc list-inside text-sm text-gray-600 space-y-2">
-                                                                            <li>Type your search terms in the search bar</li>
-                                                                            <li>Results update automatically as you type</li>
-                                                                            <li>Use the <i class="fas fa-times"></i> icon to clear your search</li>
-                                                                            <li>Press Enter to see full search results</li>
-                                                                        </ul>
-                                                                    </div>
-
-                                                                    <!-- What You Can Search -->
-                                                                    <div>
-                                                                        <h4 class="text-md font-medium text-gray-900 mb-2">What You Can Search</h4>
-                                                                        <div class="grid grid-cols-2 gap-4">
-                                                                            <div class="bg-gray-50 p-3 rounded">
-                                                                                <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
-                                                                                    <li>Message subjects</li>
-                                                                                    <li>Message content</li>
-                                                                                    <li>Sender names</li>
-                                                                                    <li>Recipient names</li>
-                                                                                </ul>
-                                                                            </div>
-                                                                            <div class="bg-gray-50 p-3 rounded">
-                                                                                <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
-                                                                                    <li>Email addresses</li>
-                                                                                    <li>Attachment names</li>
-                                                                                    <li>Dates</li>
-                                                                                    <li>Message status</li>
-                                                                                </ul>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <!-- Search Features -->
-                                                                    <div>
-                                                                        <h4 class="text-md font-medium text-gray-900 mb-2">Search Features</h4>
-                                                                        <div class="bg-blue-50 p-4 rounded-lg">
-                                                                            <ul class="list-disc list-inside text-sm text-gray-700 space-y-2">
-                                                                                <li>Real-time suggestions as you type</li>
-                                                                                <li>Filter by:
-                                                                                    <ul class="ml-6 mt-1 list-circle">
-                                                                                        <li>Date range</li>
-                                                                                        <li>Message status (read/unread)</li>
-                                                                                        <li>Importance level</li>
-                                                                                        <li>Has attachments</li>
-                                                                                    </ul>
-                                                                                </li>
-                                                                                <li>Search within specific folders</li>
-                                                                                <li>Advanced search operators</li>
-                                                                            </ul>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <!-- Search Results -->
-                                                                    <div>
-                                                                        <h4 class="text-md font-medium text-gray-900 mb-2">Understanding Search Results</h4>
-                                                                        <div class="space-y-3">
-                                                                            <p class="text-sm text-gray-600">Search results show:</p>
-                                                                            <div class="bg-white border rounded-lg p-4">
-                                                                                <div class="grid grid-cols-2 gap-4 text-sm">
-                                                                                    <div>
-                                                                                        <p class="font-medium mb-2">Message Information:</p>
-                                                                                        <ul class="space-y-1 text-gray-600">
-                                                                                            <li><i class="fas fa-user mr-2"></i>Sender name</li>
-                                                                                            <li><i class="fas fa-envelope mr-2"></i>Subject line</li>
-                                                                                            <li><i class="fas fa-clock mr-2"></i>Date and time</li>
-                                                                                            <li><i class="fas fa-paperclip mr-2"></i>Attachment indicator</li>
-                                                                                        </ul>
-                                                                                    </div>
-                                                                                    <div>
-                                                                                        <p class="font-medium mb-2">Status Indicators:</p>
-                                                                                        <ul class="space-y-1 text-gray-600">
-                                                                                            <li><i class="fas fa-envelope text-blue-500 mr-2"></i>Unread</li>
-                                                                                            <li><i class="fas fa-star text-yellow-500 mr-2"></i>Starred</li>
-                                                                                            <li><i class="fas fa-exclamation-circle text-red-500 mr-2"></i>Important</li>
-                                                                                            <li><i class="fas fa-clock text-orange-500 mr-2"></i>Deadline</li>
-                                                                                        </ul>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <!-- Pro Tips -->
-                                                                    <div class="bg-green-50 p-4 rounded-lg">
-                                                                        <h4 class="text-md font-medium text-green-900 mb-2">Pro Tips</h4>
-                                                                        <ul class="list-disc list-inside text-sm text-green-800 space-y-2">
-                                                                            <li>Use keyboard shortcut <kbd>/</kbd> to quickly focus the search bar</li>
-                                                                            <li>Press <kbd>↑</kbd> and <kbd>↓</kbd> to navigate through results</li>
-                                                                            <li>Press <kbd>Enter</kbd> to open the selected result</li>
-                                                                            <li>Press <kbd>Esc</kbd> to clear the search or close results</li>
-                                                                            <li>Click the folder icon to search within specific folders</li>
-                                                                        </ul>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-
-                                                            <!-- Footer -->
-                                                            <div class="border-t border-gray-200 px-6 py-4 flex justify-end">
-                                                                <button @click="showSearchGuide = false"
-                                                                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                                                    Got it
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </template>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="border-t border-gray-100 mt-2">
-                                    <a href="#" class="block px-4 py-2 text-sm text-blue-600 hover:bg-blue-50">
-                                        View Full Documentation
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Existing User Dropdown -->
-                    <div class="relative" x-data="{ open: false }" @click.away="open = false" @close.stop="open = false">
-                        <button @click="open = !open" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
                             <div>{{ Auth::user()->username }}</div>
-
                             <div class="ms-1">
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -564,14 +149,15 @@
                         </button>
 
                         <div x-show="open"
+                             x-cloak
+                             @click.stop
                              x-transition:enter="transition ease-out duration-200"
                              x-transition:enter-start="transform opacity-0 scale-95"
                              x-transition:enter-end="transform opacity-100 scale-100"
                              x-transition:leave="transition ease-in duration-75"
                              x-transition:leave-start="transform opacity-100 scale-100"
                              x-transition:leave-end="transform opacity-0 scale-95"
-                             class="absolute z-50 mt-2 w-48 rounded-md shadow-lg origin-top-right right-0"
-                             @click="open = false">
+                             class="absolute z-50 mt-2 w-48 rounded-md shadow-lg origin-top-right right-0">
                             <div class="rounded-md ring-1 ring-black ring-opacity-5 py-1 bg-white">
                                 <a href="{{ route('profile.edit') }}" class="block w-full px-4 py-2 text-left text-sm leading-5 text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out">
                                     {{ __('Profile') }}
@@ -1272,6 +858,65 @@
     .folder-actions {
         z-index: 10;
     }
+    </style>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Close dropdowns when navigating
+        document.addEventListener('turbolinks:before-visit', function() {
+            Alpine.store('showHelp', false);
+            Alpine.store('open', false);
+        });
+
+        // Close dropdowns when clicking pagination links
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.pagination')) {
+                Alpine.store('showHelp', false);
+                Alpine.store('open', false);
+            }
+        });
+    });
+    </script>
+    <style>
+        /* Layout scaling */
+        :root {
+            --layout-scale: 0.9;
+        }
+
+        /* Update sidebar dimensions with increased width */
+        .sidebar {
+            height: 100vh;
+            width: calc(280px * var(--layout-scale)); /* Increased from 250px to 280px */
+        }
+
+        /* Update main content margin */
+        .main-content {
+            margin-left: calc(280px * var(--layout-scale));
+        }
+
+        /* Update nav menu height calculation */
+        .nav-menu {
+            height: calc((100vh - 60px) * var(--layout-scale));
+        }
+
+        /* Update folders list height */
+        #folders-list {
+            height: calc((100vh - 450px) * var(--layout-scale));
+        }
+
+        /* Update content padding */
+        .content {
+            padding: calc(2rem * var(--layout-scale));
+        }
+
+        /* Update top bar elements */
+        .top-bar {
+            padding: calc(1rem * var(--layout-scale));
+        }
+
+        /* Update search input sizing */
+        .search-input {
+            padding: calc(0.5rem * var(--layout-scale)) calc(0.75rem * var(--layout-scale));
+        }
     </style>
 </body>
 </html>

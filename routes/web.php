@@ -60,6 +60,21 @@ Route::middleware('auth')->group(function () {
     // Add this new route for removing messages from folders
     Route::delete('/folders/{folder}/messages/{message}', [FolderController::class, 'removeMessage'])
         ->name('folders.remove-message');
+
+    // Documentation routes
+    Route::prefix('documentation')->name('documentation.')->group(function () {
+        Route::get('/compose', function () {
+            return view('documentation.guides.compose');
+        })->name('compose');
+        
+        Route::get('/folder', function () {
+            return view('documentation.guides.folder');
+        })->name('folder');
+        
+        Route::get('/search', function () {
+            return view('documentation.guides.search');
+        })->name('search');
+    });
 });
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {

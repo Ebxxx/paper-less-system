@@ -591,8 +591,25 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    // Remove the message row from the inbox
+                    const messageRow = document.querySelector(`tr[data-message-id="${messageId}"]`);
+                    if (messageRow) {
+                        messageRow.remove();
+                    }
+
+                    // Check if inbox is empty and show empty message if needed
+                    const tbody = document.querySelector('tbody');
+                    if (tbody && !tbody.hasChildNodes()) {
+                        const table = tbody.closest('.overflow-x-auto');
+                        table.innerHTML = '<p class="text-gray-500 text-center py-4">Your inbox is empty.</p>';
+                    }
+
                     // Show success notification
-                    alert('Message added to folder');
+                    const notification = document.createElement('div');
+                    notification.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg';
+                    notification.textContent = 'Message added to folder';
+                    document.body.appendChild(notification);
+                    setTimeout(() => notification.remove(), 3000);
                 }
             });
         }
