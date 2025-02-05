@@ -59,13 +59,30 @@ class FolderController extends Controller
             abort(403);
         }
 
-        $folder->messages()->attach($validated['message_id']);
-        $folder->loadCount('messages');
+        try {
+            // Check if message is already in any folder
+            $message = Message::findOrFail($validated['message_id']);
+            if ($message->folders()->exists()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Message is already in a folder'
+                ], 400);
+            }
 
-        return response()->json([
-            'success' => true,
-            'messages_count' => $folder->messages_count
-        ]);
+            $folder->messages()->attach($validated['message_id']);
+            $folder->loadCount('messages');
+
+            return response()->json([
+                'success' => true,
+                'messages_count' => $folder->messages_count,
+                'message' => 'Message added to folder successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to add message to folder'
+            ], 500);
+        }
     }
 
     public function removeMessage(Folder $folder, Message $message)

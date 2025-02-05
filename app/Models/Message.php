@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Attachment;
 use App\Events\MessageRead;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Message extends Model
 {
@@ -103,5 +104,14 @@ class Message extends Model
         event(new MessageRead($this));
         
         return $this;
+    }
+
+    /**
+     * Get the folders that contain this message.
+     */
+    public function folders(): BelongsToMany
+    {
+        return $this->belongsToMany(Folder::class, 'folder_messages')
+                    ->withTimestamps();
     }
 }

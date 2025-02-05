@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Folder extends Model
 {
@@ -15,7 +16,10 @@ class Folder extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function messages()
+    /**
+     * Get the messages in this folder.
+     */
+    public function messages(): BelongsToMany
     {
         return $this->belongsToMany(Message::class, 'folder_messages')
                     ->withTimestamps();

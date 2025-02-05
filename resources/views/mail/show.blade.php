@@ -71,6 +71,49 @@
                                     </button>
                                 </form>
 
+                                <!-- Add to Folder Dropdown -->
+                                @if(auth()->id() === $message->to_user_id)
+                                    <div class="relative" x-data="{ open: false, showAll: false }">
+                                        <button @click.prevent="open = !open" 
+                                                class="text-gray-600 hover:text-gray-800 focus:outline-none group relative">
+                                            <i class="fas fa-folder-plus"></i>
+                                            <span class="absolute hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap z-10">
+                                                Add to folder
+                                            </span>
+                                        </button>
+                                        <div x-show="open"
+                                             @click.away="open = false"
+                                             x-transition:enter="transition ease-out duration-100"
+                                             x-transition:enter-start="transform opacity-0 scale-95"
+                                             x-transition:enter-end="transform opacity-100 scale-100"
+                                             x-transition:leave="transition ease-in duration-75"
+                                             x-transition:leave-start="transform opacity-100 scale-100"
+                                             x-transition:leave-end="transform opacity-0 scale-95"
+                                             class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 py-1 border border-gray-200">
+                                            @forelse(auth()->user()->folders as $index => $folder)
+                                                <button @click="open = false" 
+                                                        onclick="addToFolder('{{ $message->id }}', '{{ $folder->id }}')"
+                                                        x-show="showAll || {{ $index }} < 5"
+                                                        class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:outline-none">
+                                                    <div class="flex items-center">
+                                                        <i class="fas fa-folder mr-2 text-gray-400"></i>
+                                                        <span>{{ $folder->name }}</span>
+                                                    </div>
+                                                </button>
+                                            @empty
+                                                <div class="px-4 py-2 text-sm text-gray-500">No folders available</div>
+                                            @endforelse
+
+                                            @if(auth()->user()->folders->count() > 5)
+                                                <button @click="showAll = !showAll"
+                                                        x-text="showAll ? 'Show Less' : 'Show All'"
+                                                        class="block w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-gray-100 focus:outline-none border-t">
+                                                </button>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endif
+
                                 @if(auth()->id() === $message->to_user_id)
                                     <form action="{{ route('mail.toggle-archive', $message) }}" method="POST" class="inline">
                                         @csrf
@@ -747,6 +790,57 @@ ${sender}`;
                             btn.classList.remove('bg-blue-50', 'border-blue-500');
                         });
                         event.target.closest('.pre-reply-btn').classList.add('bg-blue-50', 'border-blue-500');
+                    }
+
+                    function createNewFolder() {
+                        const folderName = prompt('Enter folder name:');
+                        if (folderName) {
+                            fetch('{{ route("folders.store") }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                body: JSON.stringify({ name: folderName })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    // Reload the page to show the new folder
+                                    window.location.reload();
+                                }
+                            });
+                        }
+                    }
+
+                    function addToFolder(messageId, folderId) {
+                        fetch('{{ route("folders.add-message") }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({ 
+                                message_id: messageId,
+                                folder_id: folderId
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Show success notification
+                                const notification = document.createElement('div');
+                                notification.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-50';
+                                notification.textContent = 'Message added to folder';
+                                document.body.appendChild(notification);
+                                setTimeout(() => notification.remove(), 3000);
+
+                                // Redirect to the folder view after a short delay
+                                setTimeout(() => {
+                                    window.location.href = '/folders/' + folderId;
+                                }, 1000);
+                            }
+                        });
                     }
                     </script>
                 </div>

@@ -84,7 +84,7 @@
                                                     @endif
 
                                                     <!-- Add to Folder Dropdown -->
-                                                    <div class="relative" x-data="{ open: false }">
+                                                    <div class="relative" x-data="{ open: false, showAll: false }">
                                                         <button @click.prevent="open = !open" 
                                                                 class="text-gray-600 hover:text-gray-800 focus:outline-none group relative">
                                                             <i class="fas fa-folder-plus"></i>
@@ -100,17 +100,27 @@
                                                              x-transition:leave="transition ease-in duration-75"
                                                              x-transition:leave-start="transform opacity-100 scale-100"
                                                              x-transition:leave-end="transform opacity-0 scale-95"
-                                                             class="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 py-1">
-                                                            @forelse(auth()->user()->folders as $folder)
+                                                             class="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 py-1 border border-gray-200">
+                                                            @forelse(auth()->user()->folders as $index => $folder)
                                                                 <button @click="open = false" 
                                                                         onclick="addToFolder('{{ $message->id }}', '{{ $folder->id }}')"
-                                                                        class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                                                    <i class="fas fa-folder mr-2"></i>
-                                                                    {{ $folder->name }}
+                                                                        x-show="showAll || {{ $index }} < 5"
+                                                                        class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:outline-none">
+                                                                    <div class="flex items-center">
+                                                                        <i class="fas fa-folder mr-2 text-gray-400"></i>
+                                                                        <span>{{ $folder->name }}</span>
+                                                                    </div>
                                                                 </button>
                                                             @empty
                                                                 <div class="px-4 py-2 text-sm text-gray-500">No folders available</div>
                                                             @endforelse
+
+                                                            @if(auth()->user()->folders->count() > 5)
+                                                                <button @click="showAll = !showAll"
+                                                                        x-text="showAll ? 'Show Less' : 'Show All'"
+                                                                        class="block w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-gray-100 focus:outline-none border-t">
+                                                                </button>
+                                                            @endif
                                                         </div>
                                                     </div>
                                                 </div>
@@ -591,25 +601,17 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Remove the message row from the inbox
-                    const messageRow = document.querySelector(`tr[data-message-id="${messageId}"]`);
-                    if (messageRow) {
-                        messageRow.remove();
-                    }
-
-                    // Check if inbox is empty and show empty message if needed
-                    const tbody = document.querySelector('tbody');
-                    if (tbody && !tbody.hasChildNodes()) {
-                        const table = tbody.closest('.overflow-x-auto');
-                        table.innerHTML = '<p class="text-gray-500 text-center py-4">Your inbox is empty.</p>';
-                    }
-
                     // Show success notification
                     const notification = document.createElement('div');
-                    notification.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg';
+                    notification.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-50';
                     notification.textContent = 'Message added to folder';
                     document.body.appendChild(notification);
                     setTimeout(() => notification.remove(), 3000);
+
+                    // Redirect to the folder view after a short delay
+                    setTimeout(() => {
+                        window.location.href = '/folders/' + folderId;
+                    }, 1000);
                 }
             });
         }

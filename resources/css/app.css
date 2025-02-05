@@ -452,3 +452,40 @@ input[type="password"] {
 .tab-content[x-show="true"] {
     @apply opacity-100;
 }
+
+/* Add these styles for the inbox layout */
+.py-6 {
+    @apply py-1;  /* Remove vertical padding */
+}
+
+/* Ensure the main container takes full height */
+.max-w-7xl {
+    @apply min-h-screen;
+}
+
+
+
+/* Adjust the inner padding */
+.p-6 {
+    @apply p-4;  /* Reduce padding */
+}
+
+/* Ensure the table container fills available space */
+.overflow-x-auto {
+    @apply h-[calc(100vh-12rem)];  /* Adjust height to account for header */
+    @apply overflow-y-auto;  /* Enable vertical scrolling */
+}
+
+/* Style the scrollbar */
+.overflow-x-auto::-webkit-scrollbar {
+    @apply w-2;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+    @apply bg-gray-100;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 rounded;
+    @apply hover:bg-gray-400;
+}
