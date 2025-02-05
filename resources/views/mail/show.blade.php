@@ -6,31 +6,49 @@
                     <!-- Message Header -->
                     <div class="border-b pb-4 mb-4">
                         <div class="flex justify-between items-start mb-4">
-                            <div>
-                                <h2 class="text-2xl font-semibold">{{ $message->subject }}</h2>
-                                <!-- Add Marks Display -->
-                                @if($message->mark)
-                                    <div class="flex items-center space-x-2 mt-2">
-                                        @if($message->mark->is_important)
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
-                                                <i class="fas fa-exclamation-circle mr-1"></i>Important
-                                            </span>
-                                        @endif
-                                        @if($message->mark->is_urgent)
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
-                                                <i class="fas fa-exclamation-triangle mr-1"></i>Urgent
-                                            </span>
-                                        @endif
-                                        @if($message->mark->deadline)
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium 
-                                                {{ now() > $message->mark->deadline ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' }}">
-                                                <i class="fas fa-clock mr-1"></i>
-                                                Deadline: {{ $message->mark->deadline->format('M d, Y h:i A') }}
-                                            </span>
-                                        @endif
-                                    </div>
-                                @endif
+                            <div class="flex items-center space-x-4">
+                                <!-- Profile Picture -->
+                                <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center flex-shrink-0">
+                                    @if($message->sender->profile_picture)
+                                        <img src="{{ asset($message->sender->profile_picture) }}" 
+                                             alt="Profile Picture" 
+                                             class="w-full h-full object-cover">
+                                    @else
+                                        <div class="w-full h-full flex items-center justify-center text-blue-600 text-lg font-semibold">
+                                            {{ strtoupper(substr($message->sender->username, 0, 1)) }}
+                                        </div>
+                                    @endif
+                                </div>
+                                
+                                <!-- Subject and Marks -->
+                                <div>
+                                    <h2 class="text-2xl font-semibold">{{ $message->subject }}</h2>
+                                    <!-- Add Marks Display -->
+                                    @if($message->mark)
+                                        <div class="flex items-center space-x-2 mt-2">
+                                            @if($message->mark->is_important)
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                    <i class="fas fa-exclamation-circle mr-1"></i>Important
+                                                </span>
+                                            @endif
+                                            @if($message->mark->is_urgent)
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                                                    <i class="fas fa-exclamation-triangle mr-1"></i>Urgent
+                                                </span>
+                                            @endif
+                                            @if($message->mark->deadline)
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium 
+                                                    {{ now() > $message->mark->deadline ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' }}">
+                                                    <i class="fas fa-clock mr-1"></i>
+                                                    Deadline: {{ $message->mark->deadline->format('M d, Y h:i A') }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
+
+                            <!-- Action Buttons -->
                             <div class="flex items-center space-x-3">
                                 <!-- Read/Unread Status with Icon -->
                                 <span class="group relative">
@@ -52,6 +70,49 @@
                                         </span>
                                     </button>
                                 </form>
+
+                                <!-- Add to Folder Dropdown -->
+                                @if(auth()->id() === $message->to_user_id)
+                                    <div class="relative" x-data="{ open: false, showAll: false }">
+                                        <button @click.prevent="open = !open" 
+                                                class="text-gray-600 hover:text-gray-800 focus:outline-none group relative">
+                                            <i class="fas fa-folder-plus"></i>
+                                            <span class="absolute hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap z-10">
+                                                Add to folder
+                                            </span>
+                                        </button>
+                                        <div x-show="open"
+                                             @click.away="open = false"
+                                             x-transition:enter="transition ease-out duration-100"
+                                             x-transition:enter-start="transform opacity-0 scale-95"
+                                             x-transition:enter-end="transform opacity-100 scale-100"
+                                             x-transition:leave="transition ease-in duration-75"
+                                             x-transition:leave-start="transform opacity-100 scale-100"
+                                             x-transition:leave-end="transform opacity-0 scale-95"
+                                             class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 py-1 border border-gray-200">
+                                            @forelse(auth()->user()->folders as $index => $folder)
+                                                <button @click="open = false" 
+                                                        onclick="addToFolder('{{ $message->id }}', '{{ $folder->id }}')"
+                                                        x-show="showAll || {{ $index }} < 5"
+                                                        class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:outline-none">
+                                                    <div class="flex items-center">
+                                                        <i class="fas fa-folder mr-2 text-gray-400"></i>
+                                                        <span>{{ $folder->name }}</span>
+                                                    </div>
+                                                </button>
+                                            @empty
+                                                <div class="px-4 py-2 text-sm text-gray-500">No folders available</div>
+                                            @endforelse
+
+                                            @if(auth()->user()->folders->count() > 5)
+                                                <button @click="showAll = !showAll"
+                                                        x-text="showAll ? 'Show Less' : 'Show All'"
+                                                        class="block w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-gray-100 focus:outline-none border-t">
+                                                </button>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endif
 
                                 @if(auth()->id() === $message->to_user_id)
                                     <form action="{{ route('mail.toggle-archive', $message) }}" method="POST" class="inline">
@@ -83,14 +144,22 @@
                                         <div class="hidden group-hover:block absolute left-0 mt-2 w-96 bg-white border rounded-lg shadow-lg p-4 z-20">
                                             <div class="flex items-start space-x-4">
                                                 <!-- User Avatar/Initial -->
-                                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-lg font-semibold">
-                                                    {{ strtoupper(substr($message->sender->username, 0, 1)) }}
+                                                <div class="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+                                                    @if($message->sender->profile_picture)
+                                                        <img src="{{ asset($message->sender->profile_picture) }}" 
+                                                             alt="Profile Picture" 
+                                                             class="w-full h-full object-cover">
+                                                    @else
+                                                        <div class="w-full h-full flex items-center justify-center text-blue-600 text-lg font-semibold">
+                                                            {{ strtoupper(substr($message->sender->username, 0, 1)) }}
+                                                        </div>
+                                                    @endif
                                                 </div>
                                                 
                                                 <!-- User Details -->
                                                 <div class="flex-1">
                                                     <h3 class="font-medium text-base">
-                                                        {{ $message->sender->first_name }} {{ $message->sender->middle_name }} {{ $message->sender->last_name }}
+                                                    {{ $message->sender->prefix }} {{ $message->sender->first_name }} {{ $message->sender->middle_name }} {{ $message->sender->last_name }} {{ $message->sender->order_title }}
                                                     </h3>
                                                     <p class="text-gray-600">{{ $message->sender->job_title }}</p>
                                                     <p class="text-gray-600">{{ $message->sender->program }} - {{ $message->sender->department }}</p>
@@ -114,14 +183,22 @@
                                         <div class="hidden group-hover:block absolute left-0 mt-2 w-96 bg-white border rounded-lg shadow-lg p-4 z-20">
                                             <div class="flex items-start space-x-4">
                                                 <!-- User Avatar/Initial -->
-                                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-lg font-semibold">
-                                                    {{ strtoupper(substr($message->recipient->username, 0, 1)) }}
+                                                <div class="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+                                                    @if($message->recipient->profile_picture)
+                                                        <img src="{{ asset($message->recipient->profile_picture) }}" 
+                                                             alt="Profile Picture" 
+                                                             class="w-full h-full object-cover">
+                                                    @else
+                                                        <div class="w-full h-full flex items-center justify-center text-blue-600 text-lg font-semibold">
+                                                            {{ strtoupper(substr($message->recipient->username, 0, 1)) }}
+                                                        </div>
+                                                    @endif
                                                 </div>
                                                 
                                                 <!-- User Details -->
                                                 <div class="flex-1">
                                                     <h3 class="font-medium text-base">
-                                                        {{ $message->recipient->firstname }} {{ $message->recipient->middlename }} {{ $message->recipient->lastname }}
+                                                        {{ $message->recipient->prefix }} {{ $message->recipient->first_name }} {{ $message->recipient->middle_name }} {{ $message->recipient->last_name }} {{ $message->recipient->order_title }}
                                                     </h3>
                                                     <p class="text-gray-600">{{ $message->recipient->job_title }}</p>
                                                     <p class="text-gray-600">{{ $message->recipient->program }} - {{ $message->recipient->department }}</p>
@@ -211,8 +288,16 @@
                                         <div class="flex justify-between items-start mb-2">
                                             <div class="flex items-start space-x-3">
                                                 <!-- User Avatar -->
-                                                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-sm font-semibold">
-                                                    {{ strtoupper(substr($threadMessage->sender->username, 0, 1)) }}
+                                                <div class="w-8 h-8 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center flex-shrink-0">
+                                                    @if($threadMessage->sender->profile_picture)
+                                                        <img src="{{ asset($threadMessage->sender->profile_picture) }}" 
+                                                             alt="Profile Picture" 
+                                                             class="w-full h-full object-cover">
+                                                    @else
+                                                        <div class="w-full h-full flex items-center justify-center text-blue-600 text-sm font-semibold">
+                                                            {{ strtoupper(substr($threadMessage->sender->username, 0, 1)) }}
+                                                        </div>
+                                                    @endif
                                                 </div>
                                                 
                                                 <div>
@@ -295,8 +380,6 @@
                         </button>
                     </div>
 
-                    <!-- Add this temporarily for debugging -->
-                    <!-- <div class="text-sm text-gray-500">Debug: Message ID: {{ $message->id }}</div> -->
 
                     <!-- Inline Reply Form -->
                     <div id="replyForm" class="mt-6 border-t pt-6 hidden">
@@ -309,9 +392,32 @@
                             <input type="hidden" name="to_user_ids[]" value="{{ $message->sender->id }}">
                             <input type="hidden" name="subject" value="{{ str_starts_with($message->subject, 'Re:') ? $message->subject : 'Re: ' . $message->subject }}">
 
+                            <!-- Pre-reply Options -->
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Quick Reply:</label>
+                                <div class="flex space-x-4">
+                                    <button type="button" 
+                                            onclick="setPreReply('approved')"
+                                            class="pre-reply-btn px-4 py-2 text-sm rounded-md border">
+                                        <i class="fas fa-check text-green-500 mr-2"></i>Approve
+                                    </button>
+                                    <button type="button" 
+                                            onclick="setPreReply('rejected')"
+                                            class="pre-reply-btn px-4 py-2 text-sm rounded-md border">
+                                        <i class="fas fa-times text-red-500 mr-2"></i>Reject
+                                    </button>
+                                    <button type="button" 
+                                            onclick="setPreReply('thank_you')"
+                                            class="pre-reply-btn px-4 py-2 text-sm rounded-md border">
+                                        <i class="fas fa-heart text-pink-500 mr-2"></i>Thank You
+                                    </button>
+                                </div>
+                                <input type="hidden" name="pre_reply" id="preReplyInput">
+                            </div>
+
                             <!-- Message Content -->
                             <div>
-                                <textarea name="content" rows="6" required
+                                <textarea name="content" id="replyContent" rows="6" required
                                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                     placeholder="Write your reply..."></textarea>
                             </div>
@@ -355,7 +461,7 @@
 
                             <!-- Action Buttons Bar -->
                             <div class="flex items-center space-x-2">
-                                <button type="submit" 
+                                <button type="submit-reply" 
                                     class="action-button">
                                     <i class="fas fa-paper-plane"></i><span class="ml-3">Send Reply</span>
                                 </button>
@@ -389,7 +495,8 @@
                             
                             <!-- Recipients Selection -->
                             <div class="relative">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">To:</label>
+                            <label class="text-sm font-medium mb-2">To:</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2"></label>
                                 <div class="relative">
                                     <button type="button" 
                                             onclick="toggleForwardRecipientDropdown()"
@@ -432,7 +539,8 @@
 
                             <!-- Subject -->
                             <div>
-                                <label for="forward_subject" class="block text-sm font-medium text-gray-700">Subject:</label>
+                                <label class="text-sm font-medium mb-4">Subject:</label>
+                                <label for="forward_subject" class="flex-1 mt-0 block text-sm font-medium text-gray-700"></label>
                                 <input type="text" name="subject" id="forward_subject" required
                                     value="Fwd: {{ $message->subject }}"
                                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
@@ -492,7 +600,7 @@ To: {{ $message->recipient->username }} <{{ $message->recipient->email }}>
 
                             <!-- Action Buttons Bar -->
                             <div class="flex items-center space-x-2">
-                                <button type="submit" 
+                                <button type="submit-forward" 
                                     class="action-button">
                                     <i class="fas fa-paper-plane"></i><span class="ml-3">Forward Message</span>
                                 </button>
@@ -638,6 +746,102 @@ To: {{ $message->recipient->username }} <{{ $message->recipient->email }}>
                             deadlineInput.value = '';
                         }
                     });
+
+                    function setPreReply(type) {
+                        // Update hidden input
+                        document.getElementById('preReplyInput').value = type;
+                        
+                        // Update textarea content based on type
+                        const textarea = document.getElementById('replyContent');
+                        const currentDate = new Date().toLocaleDateString();
+                        const sender = "{{ auth()->user()->username }} <{{ auth()->user()->email }}>";
+                        
+                        let content = '';
+                        switch(type) {
+                            case 'approved':
+                                content = `Dear {{ $message->sender->username }},
+I hope this email finds you well. After careful consideration of your request, I am pleased to inform you that it has been approved.
+Thank you for your patience during the review process.
+
+Best regards,
+${sender}`;
+                                break;
+                            case 'rejected':
+                                content = `Dear {{ $message->sender->username }},
+I hope this email finds you well. After careful review of your request, I regret to inform you that we are unable to approve it at this time.
+Thank you for your understanding.
+
+Best regards,
+${sender}`;
+                                break;
+                            case 'thank_you':
+                                content = `Dear {{ $message->sender->username }},
+Thank you for your message. I appreciate you taking the time to reach out.
+
+Best regards,
+${sender}`;
+                                break;
+                        }
+                        
+                        textarea.value = content;
+                        
+                        // Update button styles
+                        document.querySelectorAll('.pre-reply-btn').forEach(btn => {
+                            btn.classList.remove('bg-blue-50', 'border-blue-500');
+                        });
+                        event.target.closest('.pre-reply-btn').classList.add('bg-blue-50', 'border-blue-500');
+                    }
+
+                    function createNewFolder() {
+                        const folderName = prompt('Enter folder name:');
+                        if (folderName) {
+                            fetch('{{ route("folders.store") }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                body: JSON.stringify({ name: folderName })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    // Reload the page to show the new folder
+                                    window.location.reload();
+                                }
+                            });
+                        }
+                    }
+
+                    function addToFolder(messageId, folderId) {
+                        fetch('{{ route("folders.add-message") }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({ 
+                                message_id: messageId,
+                                folder_id: folderId
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Show success notification
+                                const notification = document.createElement('div');
+                                notification.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-50';
+                                notification.textContent = 'Message added to folder';
+                                document.body.appendChild(notification);
+                                setTimeout(() => notification.remove(), 3000);
+
+                                // Redirect to the folder view after a short delay
+                                setTimeout(() => {
+                                    window.location.href = '/folders/' + folderId;
+                                }, 1000);
+                            }
+                        });
+                    }
                     </script>
                 </div>
             </div>

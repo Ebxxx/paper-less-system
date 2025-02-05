@@ -1,3 +1,12 @@
+:root {
+    --layout-scale: 0.9;
+}
+
+/* Update base font size */
+html {
+    font-size: calc(16px * var(--layout-scale));
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -97,6 +106,91 @@ mark:hover {
     @apply hover:bg-gray-50 hover:shadow-md;
 }
 
+/* Button styling */
+button[type="submit-logout"] {
+    /* @apply bg-gray-900; */
+    @apply text-red-600;
+    @apply w-full;
+    @apply py-2.5;
+    @apply rounded-md;
+    @apply font-medium;
+    @apply text-sm;
+    @apply transition-colors;
+   
+}
+
+.logo-login-container {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-weight: 800;
+    display: inline-block;
+    line-height: 0.8;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Login Page Logo */
+
+.logo-edu-login-container {
+    color: #93C5FD;
+    font-weight: 800;
+    font-size: calc(7rem * var(--layout-scale));
+    letter-spacing: -2px;
+}
+
+.logo-mail-login-container {
+    font-style: italic;
+    font-weight: 800;
+    color: white;
+    font-size: calc(7rem * var(--layout-scale));
+    letter-spacing: -2px;
+}
+
+.logo-container {
+    display: inline-block;
+    margin: -0.75rem 0;
+    line-height: 1;
+}
+
+
+/* Header Container Styles */
+.header-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: -8rem;
+    margin-left: 0.25rem;
+    position: relative;
+}
+
+.welcome-text {
+    font-size: 2.5rem;
+    font-weight: 400;
+    color: white;
+    margin-bottom: 0.25rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.subheading {
+    color: #fcfdff;
+    font-size: 1.125rem;
+    margin-top: 0.5rem;
+    margin-left: 0.25rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    line-height: 1.5;
+}
+
+/* Update the login form container */
+.login-container {
+    background-color: white;
+    border-radius: 0.5rem;
+    padding: calc(2rem * var(--layout-scale));
+    width: 100%;
+    max-width: calc(28rem * var(--layout-scale));
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+
 .action-button i {
     @apply mr-3;
 }
@@ -189,4 +283,209 @@ emoji-picker::-webkit-scrollbar-thumb {
 
 emoji-picker::-webkit-scrollbar-thumb:hover {
     background: #666;
+}
+
+/* Profile Page Styles */
+.profile-container {
+    @apply bg-gray-100 p-8;
+}
+
+/* Profile Card Styles */
+.profile-card {
+    @apply bg-white rounded-lg shadow-sm overflow-hidden;
+}
+
+/* Profile Sidebar Styles */
+.profile-sidebar {
+    @apply w-1/4 p-6 border-r border-gray-200;
+}
+
+.profile-avatar {
+    @apply w-24 h-24 mx-auto rounded-full bg-gray-200 flex items-center justify-center mb-4;
+}
+
+.profile-info {
+    @apply text-center;
+}
+
+.profile-username {
+    @apply font-medium text-gray-800;
+}
+
+.profile-email {
+    @apply text-sm text-gray-600;
+}
+
+/* Form Styles */
+.form-container {
+    @apply bg-gray-50 p-6 rounded-lg;
+}
+
+.form-grid {
+    @apply grid gap-6;
+}
+
+.input-row {
+    @apply grid grid-cols-3 gap-4;
+}
+
+.input-group {
+    @apply flex flex-col;
+}
+
+.input-label {
+    @apply text-sm text-gray-600 mb-1;
+}
+
+.form-input {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-md;
+    @apply focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+}
+
+/* E-Signature Area */
+.signature-area {
+    @apply border-2 border-dashed border-gray-300 p-4 rounded-lg bg-white;
+    @apply flex items-center justify-center;
+    min-height: 120px;
+}
+
+.signature-placeholder {
+    @apply text-gray-500 text-center;
+}
+
+/* Password Change Section */
+.password-section {
+    @apply mt-6;
+}
+
+.password-title {
+    @apply text-blue-600 font-medium mb-4;
+}
+
+/* Button Styles */
+.btn-container {
+    @apply flex justify-end space-x-3 mt-6;
+}
+
+.btn-cancel {
+    @apply px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700;
+    @apply transition duration-150 ease-in-out;
+}
+
+.btn-update {
+    @apply px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700;
+    @apply transition duration-150 ease-in-out;
+}
+
+/* Form Layout Specific Styles */
+.form-section {
+    @apply space-y-6;
+}
+
+.form-row {
+    @apply grid grid-cols-2 gap-4;
+}
+
+
+/* I Disable the default input field styles because I want to use the custom styles */
+
+/* Input Field Styles */
+/* input[type="text"],
+input[type="password"] {
+    @apply w-full px-3 py-2;
+    @apply border border-gray-300 rounded-md;
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+    @apply text-gray-700;
+} */
+
+/* I Disable the default file upload button styles because I want to use the custom styles */
+/* File Upload Button */
+/* input[type="file"] {
+    @apply mt-2 block w-full text-sm text-gray-500;
+    @apply file:mr-4 file:py-2 file:px-4;
+    @apply file:rounded-md file:border-0;
+    @apply file:text-sm file:font-semibold;
+    @apply file:bg-blue-50 file:text-blue-700;
+    @apply hover:file:bg-blue-100;
+} */
+
+/* Success Message Styles */
+.success-message {
+    @apply bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded;
+    @apply relative;
+}
+
+/* Error Message Styles */
+.error-message {
+    @apply bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded;
+    @apply relative;
+}
+
+/* Tab Styles */
+.tab-navigation {
+    @apply flex border-b border-gray-200;
+}
+
+.tab-button {
+    @apply px-4 py-2 text-sm font-medium;
+    @apply text-gray-500 hover:text-gray-700;
+    @apply focus:outline-none;
+}
+
+.tab-button.active {
+    @apply border-b-2 border-blue-500 text-blue-600;
+}
+
+/* Tab Content Transitions */
+[x-cloak] {
+    display: none !important;
+}
+
+.tab-content {
+    @apply transition-all duration-300;
+}
+
+.tab-content[x-show] {
+    @apply opacity-0;
+}
+
+.tab-content[x-show="true"] {
+    @apply opacity-100;
+}
+
+/* Add these styles for the inbox layout */
+.py-6 {
+    @apply py-1;  /* Remove vertical padding */
+}
+
+/* Ensure the main container takes full height */
+.max-w-7xl {
+    @apply min-h-screen;
+}
+
+
+
+/* Adjust the inner padding */
+.p-6 {
+    @apply p-4;  /* Reduce padding */
+}
+
+/* Ensure the table container fills available space */
+.overflow-x-auto {
+    @apply h-[calc(100vh-12rem)];  /* Adjust height to account for header */
+    @apply overflow-y-auto;  /* Enable vertical scrolling */
+}
+
+/* Style the scrollbar */
+.overflow-x-auto::-webkit-scrollbar {
+    @apply w-2;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+    @apply bg-gray-100;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 rounded;
+    @apply hover:bg-gray-400;
 }

@@ -28,8 +28,11 @@ class User extends Authenticatable
         'job_title',
         'program',
         'department',
+        'prefix',
+        'order_title',
         'signature_path',
-        'is_online'
+        'is_online',
+        'profile_picture',
     ];
 
 
@@ -78,6 +81,11 @@ class User extends Authenticatable
         return $this->receivedMessages()
                     ->whereNull('read_at')
                     ->where('is_archived', false);
+    }
+
+    public function folders()
+    {
+        return $this->hasMany(Folder::class);
     }
 
 }

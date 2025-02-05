@@ -23,6 +23,9 @@
 
         <!-- Stack Styles -->
         @stack('styles')
+
+        <!-- Add Alpine.js -->
+        <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     </head>
     <body class="font-sans antialiased">
         <!-- Add emoji picker as a dropdown -->
@@ -41,5 +44,16 @@
         <div class="min-h-screen bg-gray-100">
             @include('layouts.userSidebar')
         </div>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Prevent click event bubbling for dropdowns
+            document.querySelectorAll('.dropdown-content').forEach(dropdown => {
+                dropdown.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            });
+        });
+        </script>
     </body>
 </html>

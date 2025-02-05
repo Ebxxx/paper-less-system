@@ -17,7 +17,7 @@ body {
 
 /* Sidebar Styles */
 .sidebar {
-    width: 250px;
+    width: calc(280px * var(--layout-scale));
     background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); /* Royal blue gradient */
     border-right: 1px solid rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
@@ -32,16 +32,17 @@ body {
 }
 
 .sidebar-header {
-    padding: 1.3rem;
+    padding: calc(1.3rem * var(--layout-scale));
     display: flex;
     align-items: center;
     justify-content: left;
+    margin-left: 0.25rem;
     /* border-bottom: 1px solid #070707; */
 }
 
 .logo {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    font-size: 1.6rem;
+    font-size: calc(1.6rem * var(--layout-scale));
     font-weight: 800;
     color: white;
     text-decoration: none;
@@ -60,13 +61,13 @@ body {
 }
 
 .nav-menu {
-    padding: 1rem;
+    padding: calc(1rem * var(--layout-scale));
 }
 
 .nav-item {
     display: block;
-    padding: 0.75rem 1rem;
-    margin: 0.5rem 0;
+    padding: calc(0.75rem * var(--layout-scale)) calc(1rem * var(--layout-scale));
+    margin: calc(0.5rem * var(--layout-scale)) 0;
     color: rgba(255, 255, 255, 0.8); /* Slightly transparent white */
     text-decoration: none;
     border-radius: 0.375rem;
@@ -104,9 +105,9 @@ body {
 /* Main Content Styles */
 .main-content {
     flex: 1;
-    margin-left: 250px;
+    margin-left: calc(280px * var(--layout-scale));
     transition: all 0.3s ease;
-    width: calc(100% - 250px);
+    width: calc(100% - 280px * var(--layout-scale));
 }
 
 .main-content.expanded {
@@ -338,4 +339,9 @@ body {
 
 #search-suggestions {
     animation: fadeIn 0.2s ease-out;
+}
+
+/* Update folders list height calculation */
+#folders-list {
+    height: calc((100vh - 450px) * var(--layout-scale));
 }

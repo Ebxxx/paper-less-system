@@ -7,6 +7,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\SuperadminController;
 use App\Http\Middleware\CheckMaintenanceMode;
+use App\Http\Controllers\FolderController;
 
 Route::get('/maintenance', function () {
     return view('maintenance');
@@ -35,20 +36,49 @@ Route::middleware('auth')->group(function () {
     Route::get('/mail/compose', [MessageController::class, 'compose'])->name('mail.compose');
     Route::get('/mail/sent', [MessageController::class, 'sent'])->name('mail.sent');
     Route::get('/mail/archive', [MessageController::class, 'archive'])->name('mail.archive');
-    
-    // Add the new starred route here
     Route::get('/mail/starred', [MessageController::class, 'starred'])->name('mail.starred');
-    
-    // Other mail routes
     Route::post('/mail/send', [MessageController::class, 'send'])->name('mail.send');
     Route::get('/mail/{message}', [MessageController::class, 'show'])->name('mail.show');
     Route::post('/mail/{message}/star', [MessageController::class, 'toggleStar'])->name('mail.toggle-star');
     Route::post('/mail/{message}/toggle-archive', [MessageController::class, 'toggleArchive'])->name('mail.toggle-archive');
     Route::post('/mail/{message}/toggle-read', [MessageController::class, 'toggleRead'])->name('mail.toggle-read');
+    
+    // Add this new route for downloading attachments
+    Route::get('/mail/attachment/{attachment}/download', [MessageController::class, 'download'])->name('mail.download');
+
+    // Folder routes
+    Route::prefix('folders')->name('folders.')->group(function () {
+        Route::post('/', [FolderController::class, 'store'])->name('store');
+        Route::get('/{folder}', [FolderController::class, 'show'])->name('show');
+        Route::post('/add-message', [FolderController::class, 'addMessage'])->name('add-message');
+        Route::delete('/{folder}', [FolderController::class, 'destroy'])->name('destroy');
+        Route::put('/{folder}', [FolderController::class, 'update'])->name('update');
+    });
+
+    Route::get('/mail/folder/{folder}', [FolderController::class, 'show'])->name('mail.folder');
+
+    // Add this new route for removing messages from folders
+    Route::delete('/folders/{folder}/messages/{message}', [FolderController::class, 'removeMessage'])
+        ->name('folders.remove-message');
+
+    // Documentation routes
+    Route::prefix('documentation')->name('documentation.')->group(function () {
+        Route::get('/compose', function () {
+            return view('documentation.guides.compose');
+        })->name('compose');
+        
+        Route::get('/folder', function () {
+            return view('documentation.guides.folder');
+        })->name('folder');
+        
+        Route::get('/search', function () {
+            return view('documentation.guides.search');
+        })->name('search');
+    });
 });
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
-    Route::post('/logout', [AdminAuthController::class, 'logout']) ->name('admin.logout');
+    Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.AdminDashboard');
     
     // User management routes
@@ -60,47 +90,37 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::delete('/users/{user}', [AdminController::class, 'deleteUser'])->name('admin.users.delete');
 
     Route::get('/admin/mail/messages', function () {
-        return view('admin.mail.message'); })->name('admin.mail.message');
+        return view('admin.mail.message');
+    })->name('admin.mail.message');
 
-    Route::get('/mail/monitoring', [AdminController::class, 'mailMonitoring'])->name('admin.mail.monitoring');
-    Route::get('/mail/message/{message}', [AdminController::class, 'getMessage'])->name('admin.mail.getMessage');
-    
+    Route::get('/mail/monitoring', [AdminController::class, 'mailMonitoring'])
+        ->name('admin.mail.monitoring');
+    Route::get('/mail/message/{message}', [AdminController::class, 'getMessage'])
+        ->name('admin.mail.getMessage');
     Route::get('/mail/attachment/{attachment}/download', [AdminController::class, 'downloadAttachment'])
         ->name('admin.mail.download');
 });
 
-    // Superadmin Routes
-    Route::prefix('superadmin')->name('superadmin.')->group(function () {
-        // Authentication Routes
-        Route::get('/login', [SuperadminController::class, 'showLoginForm'])->name('login');
-        Route::post('/login', [SuperadminController::class, 'login'])->name('login.submit');
-        Route::post('/logout', [SuperadminController::class, 'logout'])->name('logout');
+// Superadmin Routes
+Route::prefix('superadmin')->name('superadmin.')->group(function () {
+    Route::get('/login', [SuperadminController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [SuperadminController::class, 'login'])->name('login.submit');
+    Route::post('/logout', [SuperadminController::class, 'logout'])->name('logout');
 
-        // Protected Superadmin Routes
-        Route::middleware(['auth:superadmin'])->group(function () {
-            Route::get('/dashboard', [SuperadminController::class, 'dashboard'])->name('dashboard');
-            Route::get('/create-admin', [SuperadminController::class, 'createAdmin'])->name('create-admin');
-            Route::post('/store-admin', [SuperadminController::class, 'storeAdmin'])->name('store-admin');
-
-            Route::get('/superadmin/user-statistics', [SuperadminController::class, 'getUserStatistics'])->middleware('auth:superadmin');
-            Route::post('/maintenance/toggle', [SuperadminController::class, 'maintenanceToggle'])
-                ->name('maintenance.toggle');
-            Route::get('/maintenance', [SuperadminController::class, 'maintenanceView'])
-                ->name('maintenance');
-        });
+    Route::middleware(['auth:superadmin'])->group(function () {
+        Route::get('/dashboard', [SuperadminController::class, 'dashboard'])->name('dashboard');
+        Route::get('/create-admin', [SuperadminController::class, 'createAdmin'])->name('create-admin');
+        Route::post('/store-admin', [SuperadminController::class, 'storeAdmin'])->name('store-admin');
+        Route::get('/superadmin/user-statistics', [SuperadminController::class, 'getUserStatistics'])->middleware('auth:superadmin');
+        Route::post('/maintenance/toggle', [SuperadminController::class, 'maintenanceToggle'])->name('maintenance.toggle');
+        Route::get('/maintenance', [SuperadminController::class, 'maintenanceView'])->name('maintenance');
+    });
 });
 
 Route::middleware([CheckMaintenanceMode::class])->group(function () {
     Route::get('/', function () {
         return redirect()->route('login');
     });
-
-    Route::get('/dashboard', function () {
-        return view('user.dashboard');
-    })->middleware(['auth', 'verified'])->name('dashboard');
 });
-
-Route::get('/mail/attachment/{attachment}/download', [MessageController::class, 'download'])
-    ->name('mail.download');
 
 require __DIR__.'/auth.php';
